@@ -19,8 +19,47 @@ pipx
 pipx install cratedb-django
 ```
 
+
+## Install 
+
+Once the library is installed, use it in your `settings.py`, e.g.
+
+```python
+DATABASES = {
+    "default": {
+        "ENGINE": "cratedb_django",
+        "SERVERS": ["localhost:4200"],
+    }
+}
+```
+
+After that, for a model to be used in CrateDB, you need to use `CrateModel` as a base class.
+
+```python
+from django.db import models
+from cratedb_django.models import CrateModel
+
+
+class Metrics(CrateModel):
+    id = models.TextField(primary_key=True, db_default=UUID())
+    value = models.IntegerField()
+```
+
+Django migrations can be run in CrateDB, default django migrations are tested.
+In spite of that, we recommend that you run anything transactional in a transactional database,
+like PostgresSQL and use CrateDB as your analytical database.
+
+## Details
+
+* `unique=True`. CrateDB only supports unique constraints on primary keys, any model field with unique=true
+will emit a warning to stdout.
+
+
 ### Environment variables
-SUPPRESS_UNIQUE_CONSTRAINT_WARNING [true/false] Suppresses warning when a model is created with unique=True constraint.
+
+| name                               | value        | description                                                             |
+|------------------------------------|--------------|-------------------------------------------------------------------------|
+| `SUPPRESS_UNIQUE_CONSTRAINT_WARNING` | [`true`/`false`] | Suppresses warning when a model is created with unique=True constraint. |
 
 # License
 This project is open-source under a MIT license.
