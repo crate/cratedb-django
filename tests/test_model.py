@@ -53,8 +53,6 @@ def test_update_model():
         obj.field = "sometext"
         obj.save()
 
-
-
         assert obj.field == "sometext"
         assert pk == obj.pk  # Pk did not change
 
@@ -63,6 +61,7 @@ def test_update_model():
         SimpleModel.refresh()
         # assert SimpleModel.objects.count() == 1
         # pprint.pp(ctx.captured_queries)
+
 
 def test_delete_from_model():
     with captured_queries(connection) as ctx:
