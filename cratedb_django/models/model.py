@@ -18,7 +18,7 @@ class MetaCrate(ModelBase):
             meta = attrs["Meta"]
             for crate_attr in CRATE_META_OPTIONS:
                 attr_name = crate_attr[0]
-                if attr_name in meta.__dict__:
+                if hasattr(meta, attr_name):
                     crate_attrs[attr_name] = meta.__dict__[attr_name]
                     delattr(meta, attr_name)
 
