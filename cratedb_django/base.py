@@ -153,7 +153,9 @@ def aggressively_refresh():
                 table_name = match.group(1)
                 return args[0].execute(f"refresh table {table_name}", None)
             return func
+
         return wrapper
+
     return deco
 
 
