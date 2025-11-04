@@ -1,7 +1,6 @@
-import pprint
+from tests.test_app.models import AllFieldsModel, SimpleModel, RefreshModel
 
 from django.forms.models import model_to_dict
-from tests.test_app.models import AllFieldsModel, SimpleModel, RefreshModel
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
@@ -10,13 +9,16 @@ from tests.utils import captured_queries
 
 def test_model_refresh():
     """Test that Model.refresh() works"""
+    expected_query = "refresh table test_app_simplemodel"
     with CaptureQueriesContext(connection) as ctx:
         SimpleModel.refresh()
-        assert "refresh table test_app_simplemodel" in ctx.captured_queries[0]["sql"]
+        assert expected_query in ctx.captured_queries[0]["sql"]
 
 
 def test_model_refresh_meta():
-    """Test that a refresh statement is sent after updating or inserting when auto_refresh=True in Meta"""
+    """Test that a refresh statement is sent after updating
+    or inserting when auto_refresh=True in Meta"""
+
     with captured_queries(connection) as ctx:
         # Test insert
         RefreshModel.objects.create(field="sometext")
@@ -24,7 +26,8 @@ def test_model_refresh_meta():
 
 
 def test_model_auto_pk_value_exists():
-    """Test that when we create a model object with Django created 'id', the value gets added to the Object"""
+    """Test that when we create a model object with Django created
+    'id', the value gets added to the Object"""
     obj = SimpleModel.objects.create(field="test_model_auto_pk_value_exists")
     SimpleModel.refresh()
     assert obj.id
@@ -53,8 +56,6 @@ def test_update_model():
         obj.field = "sometext"
         obj.save()
 
-
-
         assert obj.field == "sometext"
         assert pk == obj.pk  # Pk did not change
 
@@ -63,6 +64,7 @@ def test_update_model():
         SimpleModel.refresh()
         # assert SimpleModel.objects.count() == 1
         # pprint.pp(ctx.captured_queries)
+
 
 def test_delete_from_model():
     with captured_queries(connection) as ctx:

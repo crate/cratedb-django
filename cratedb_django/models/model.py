@@ -28,7 +28,8 @@ class MetaCrate(ModelBase):
 
         o = super().__new__(cls, name, bases, attrs, **kwargs)
 
-        # Return back the crate_attrs we took from meta to the already created object.
+        # Return back the crate_attrs we took from meta to the already
+        # created object.
         for k, v in crate_attrs.items():
             setattr(o._meta, k, v)
         return o
