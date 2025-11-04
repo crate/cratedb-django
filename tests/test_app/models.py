@@ -5,6 +5,11 @@ from django.db import models
 from cratedb_django.fields import ObjectField
 from cratedb_django.models import CrateModel
 
+"""
+We need to register the models here so they get correctly configured and
+detected by django.
+"""
+
 
 class AllFieldsModel(CrateModel):
     field_int = models.IntegerField(unique=False)
@@ -22,7 +27,7 @@ class AllFieldsModel(CrateModel):
     field_uuid = models.UUIDField()
 
     @classmethod
-    def create_test(cls):
+    def create_dummy(cls):
         return cls.objects.create(
             field_int=1,
             field_int_unique=2,
