@@ -1,12 +1,14 @@
+import pytest
+
 from cratedb_django.models import CrateModel
 from cratedb_django.models.model import CRATE_META_OPTIONS
-from tests.test_app.models import AllFieldsModel, SimpleModel, RefreshModel
 
 from django.forms.models import model_to_dict
-from django.db import connection
+from django.db import connection, models
 from django.test.utils import CaptureQueriesContext
 
 from tests.utils import captured_queries
+from tests.test_app.models import AllFieldsModel, SimpleModel, RefreshModel
 
 
 def test_model_refresh():
@@ -84,7 +86,8 @@ def test_delete_from_model():
 
 
 def test_insert_all_fields():
-    """Test that an object is created and accounted for with all supported field types"""
+    """Test that an object is created and accounted
+    for with all supported field types"""
 
     expected = {
         "id": 29147646,
@@ -130,6 +133,46 @@ def test_model_meta():
         assert getattr(NoMetaOptions._meta, key) is default_value
 
     # Check the combination of user-defined + default.
-    assert "auto_refresh" in RefreshMetaOptions._meta.__dict__
     assert RefreshMetaOptions._meta.auto_refresh is True
-    # TODO Add the default part (currently we only support one option)
+    assert RefreshMetaOptions._meta.partition_by is CRATE_META_OPTIONS["partition_by"]
+
+
+def test_model_meta_partition_by():
+    """Test partition_by option in Meta class."""
+
+    class MetaOptions(CrateModel):
+        one = models.TextField()
+        two = models.TextField()
+        three = models.TextField()
+
+        class Meta:
+            app_label = "ignore"
+            partition_by = ["one"]
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.table_sql(MetaOptions)
+        assert "PARTITIONED BY (one)" in sql
+
+    MetaOptions._meta.partition_by = ["one", "two", "three"]
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.table_sql(MetaOptions)
+        assert "PARTITIONED BY (one, two, three)" in sql
+
+    MetaOptions._meta.partition_by = []
+    with pytest.raises(
+        ValueError, match="partition_by has to be a non-empty " "sequence"
+    ):
+        with connection.schema_editor() as schema_editor:
+            schema_editor.table_sql(MetaOptions)
+
+    MetaOptions._meta.partition_by = "one"
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.table_sql(MetaOptions)
+        assert "PARTITIONED BY (one)" in sql
+
+    MetaOptions._meta.partition_by = "missing_column"
+    with pytest.raises(
+        ValueError, match="Column 'missing_column' does not exist in model"
+    ):
+        with connection.schema_editor() as schema_editor:
+            schema_editor.table_sql(MetaOptions)

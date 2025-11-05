@@ -9,6 +9,7 @@ OMITTED = object()
 # (name, default_value)
 CRATE_META_OPTIONS = {
     "auto_refresh": False,  # Automatically refresh a table on inserts.
+    "partition_by": OMITTED,
 }
 
 
