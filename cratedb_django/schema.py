@@ -1,7 +1,10 @@
 import logging
 import os
+from typing import Sequence
 
 from django.db.backends.base.schema import BaseDatabaseSchemaEditor
+
+from cratedb_django.models.model import OMITTED
 
 
 class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
@@ -68,3 +71,28 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             # You cannot change types after table creation.
             return
         return super().alter_field(model, old_field, new_field, strict)
+
+    def table_sql(self, model):
+        sql = list(super().table_sql(model))
+
+        partition_by = model._meta.partition_by
+        if partition_by is not OMITTED:
+            if not isinstance(partition_by, Sequence) or not partition_by:
+                raise ValueError(
+                    "partition_by has to be a non-empty sequence, " "e.g. ['id']"
+                )
+            if isinstance(partition_by, str):
+                partition_by = [
+                    partition_by,
+                ]
+
+            for field in partition_by:
+                try:
+                    model._meta.get_field(field)
+                except Exception as e:
+                    raise ValueError(
+                        f"Column {field!r} does not exist in " f"model"
+                    ) from e
+
+            sql[0] += f" PARTITIONED BY ({", ".join(partition_by)})"
+        return tuple(sql)
