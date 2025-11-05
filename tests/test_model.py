@@ -1,3 +1,5 @@
+from cratedb_django.models import CrateModel
+from cratedb_django.models.model import CRATE_META_OPTIONS
 from tests.test_app.models import AllFieldsModel, SimpleModel, RefreshModel
 
 from django.forms.models import model_to_dict
@@ -106,3 +108,28 @@ def test_insert_all_fields():
 
     obj = AllFieldsModel.objects.get()
     assert model_to_dict(obj) == expected
+
+
+def test_model_meta():
+    """
+    Tests that default values are properly set even when not specified
+    """
+
+    class NoMetaOptions(CrateModel):
+        class Meta:
+            app_label = "ignore"
+
+    class RefreshMetaOptions(CrateModel):
+        class Meta:
+            app_label = "ignore"
+            auto_refresh = True
+
+    # Check all defaults are set.
+    for key, default_value in CRATE_META_OPTIONS.items():
+        assert key in NoMetaOptions._meta.__dict__
+        assert getattr(NoMetaOptions._meta, key) is default_value
+
+    # Check the combination of user-defined + default.
+    assert "auto_refresh" in RefreshMetaOptions._meta.__dict__
+    assert RefreshMetaOptions._meta.auto_refresh is True
+    # TODO Add the default part (currently we only support one option)

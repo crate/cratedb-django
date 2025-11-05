@@ -1,11 +1,15 @@
 from django.db import models, connection
 from django.db.models.base import ModelBase
 
-# Tuple of all the extra options a CrateModel Meta class has.
+# If a meta option has the value OMITTED, it will be omitted
+# from SQL creation.
+OMITTED = object()
+
+# dict of all the extra options a CrateModel Meta class has.
 # (name, default_value)
-CRATE_META_OPTIONS = (
-    ("auto_refresh", False),  # Automatically refresh a table on inserts.
-)
+CRATE_META_OPTIONS = {
+    "auto_refresh": False,  # Automatically refresh a table on inserts.
+}
 
 
 class MetaCrate(ModelBase):
@@ -16,12 +20,10 @@ class MetaCrate(ModelBase):
 
         try:
             meta = attrs["Meta"]
-            for crate_attr in CRATE_META_OPTIONS:
-                attr_name = crate_attr[0]
-                if hasattr(meta, attr_name):
-                    crate_attrs[attr_name] = meta.__dict__[attr_name]
-                    delattr(meta, attr_name)
-
+            for key, default_value in CRATE_META_OPTIONS.items():
+                crate_attrs[key] = getattr(meta, key, default_value)
+                if hasattr(meta, key):
+                    delattr(meta, key)
         except KeyError:
             # Has no meta class
             pass
