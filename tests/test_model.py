@@ -159,9 +159,7 @@ def test_model_meta_partition_by():
         assert "PARTITIONED BY (one, two, three)" in sql
 
     MetaOptions._meta.partition_by = []
-    with pytest.raises(
-        ValueError, match="partition_by has to be a non-empty " "sequence"
-    ):
+    with pytest.raises(ValueError, match="partition_by has to be a non-empty sequence"):
         with connection.schema_editor() as schema_editor:
             schema_editor.table_sql(MetaOptions)
 

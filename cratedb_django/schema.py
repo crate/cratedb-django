@@ -79,7 +79,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         if partition_by is not OMITTED:
             if not isinstance(partition_by, Sequence) or not partition_by:
                 raise ValueError(
-                    "partition_by has to be a non-empty sequence, " "e.g. ['id']"
+                    "partition_by has to be a non-empty sequence, e.g. ['id']"
                 )
             if isinstance(partition_by, str):
                 partition_by = [
