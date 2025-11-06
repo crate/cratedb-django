@@ -2,14 +2,17 @@ from django.db import models, connection
 from django.db.models.base import ModelBase
 
 # If a meta option has the value OMITTED, it will be omitted
-# from SQL creation.
-OMITTED = object()
+# from SQL creation. bool(Omitted) resolves to False.
+_OMITTED = type("OMITTED", (), {"__bool__": lambda _: False})
+OMITTED = _OMITTED()
 
 # dict of all the extra options a CrateModel Meta class has.
 # (name, default_value)
 CRATE_META_OPTIONS = {
     "auto_refresh": False,  # Automatically refresh a table on inserts.
     "partition_by": OMITTED,
+    "clustered_by": OMITTED,
+    "number_of_shards": OMITTED,
 }
 
 
@@ -49,7 +52,7 @@ class CrateModel(models.Model, metaclass=MetaCrate):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # perform the actual save (insert or update)
         auto_refresh = getattr(self._meta, "auto_refresh", False)
-        if auto_refresh and self.pk:  # If self.pk is available, its an insert.
+        if auto_refresh and self.pk:  # If self.pk is available, it's an insert.
             table_name = self._meta.db_table
             with connection.cursor() as cursor:
                 cursor.execute(f"refresh table {table_name}")

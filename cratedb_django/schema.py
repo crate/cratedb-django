@@ -7,6 +7,13 @@ from django.db.backends.base.schema import BaseDatabaseSchemaEditor
 from cratedb_django.models.model import OMITTED
 
 
+def check_field(model, field_name: str) -> None:
+    try:
+        model._meta.get_field(field_name)
+    except Exception as e:
+        raise ValueError(f"Column {field_name!r} does not exist in " f"model") from e
+
+
 class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     # TODO DOCUMENT CAVEAT: IF YOU START WITH A DJANGO MIGRATIONS CREATED BY OTHER DATABASE LIKE POSTGRES,
     # NEW MIGRATIONS WITH NO-OP operations like drop constraint, might produce confusing behaviour, you might
@@ -72,7 +79,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return
         return super().alter_field(model, old_field, new_field, strict)
 
-    def table_sql(self, model):
+    def table_sql(self, model) -> tuple:
         sql = list(super().table_sql(model))
 
         partition_by = getattr(model._meta, "partition_by", OMITTED)
@@ -87,12 +94,36 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 ]
 
             for field in partition_by:
-                try:
-                    model._meta.get_field(field)
-                except Exception as e:
-                    raise ValueError(
-                        f"Column {field!r} does not exist in " f"model"
-                    ) from e
+                check_field(model, field)
 
             sql[0] += f" PARTITIONED BY ({", ".join(partition_by)})"
+
+        clustered_by = getattr(model._meta, "clustered_by", OMITTED)
+        if clustered_by is not OMITTED:
+            if not isinstance(clustered_by, str) or not clustered_by:
+                raise ValueError(
+                    "clustered_by has to be a non-empty "
+                    f"string, not {clustered_by!r}"
+                )
+            check_field(model, clustered_by)
+
+        number_of_shards = getattr(model._meta, "number_of_shards", OMITTED)
+        if number_of_shards is not OMITTED:
+            if not isinstance(number_of_shards, int) or number_of_shards == 0:
+                raise ValueError(
+                    "number_of_shards has to be an integer "
+                    f"bigger than 0, not {number_of_shards!r}"
+                )
+
+        if clustered_by and not number_of_shards:
+            sql[0] += f" CLUSTERED BY ({clustered_by})"
+
+        if clustered_by and number_of_shards:
+            sql[0] += (
+                f" CLUSTERED BY ({clustered_by}) INTO {number_of_shards} " f"shards"
+            )
+
+        if not clustered_by and number_of_shards:
+            sql[0] += f" CLUSTERED INTO ({number_of_shards})"
+
         return tuple(sql)

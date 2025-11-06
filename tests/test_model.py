@@ -1,7 +1,7 @@
 import pytest
 
 from cratedb_django.models import CrateModel
-from cratedb_django.models.model import CRATE_META_OPTIONS
+from cratedb_django.models.model import CRATE_META_OPTIONS, OMITTED
 
 from django.forms.models import model_to_dict
 from django.db import connection, models
@@ -212,3 +212,74 @@ def test_model_id():
             SomeModel, SomeModel._meta.get_field("id")
         )
         assert sql == "text NOT NULL PRIMARY KEY"
+
+
+def test_clustered_by():
+    """
+    `clustered_by` and `number_of_shards` meta class attributes.
+    """
+
+    class MetaOptions(CrateModel):
+        id = models.IntegerField()
+        one = models.TextField()
+        two = models.TextField()
+        three = models.TextField()
+
+        class Meta:
+            app_label = "ignore"
+            clustered_by = "one"
+            number_of_shards = 3
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.table_sql(MetaOptions)
+        assert "CLUSTERED BY (one) INTO 3 shards" in sql
+
+    MetaOptions._meta.clustered_by = "one"
+    MetaOptions._meta.number_of_shards = OMITTED
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.table_sql(MetaOptions)
+        assert "CLUSTERED BY (one)" in sql
+        assert "INTO 3 shards" not in sql
+
+    MetaOptions._meta.clustered_by = OMITTED
+    MetaOptions._meta.number_of_shards = 3
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.table_sql(MetaOptions)
+        assert "CLUSTERED INTO 3 shards" not in sql
+
+    MetaOptions._meta.clustered_by = OMITTED
+    MetaOptions._meta.number_of_shards = OMITTED
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.table_sql(MetaOptions)
+        assert "INTO 3 shards" not in sql
+        assert "CLUSTERED" not in sql
+
+    with pytest.raises(ValueError, match="Column 'nocolumn' does not exist in model"):
+        MetaOptions._meta.clustered_by = "nocolumn"
+        MetaOptions._meta.number_of_shards = OMITTED
+        with connection.schema_editor() as schema_editor:
+            schema_editor.table_sql(MetaOptions)
+
+    with pytest.raises(
+        ValueError, match="clustered_by has to be a non-empty string, not 1"
+    ):
+        MetaOptions._meta.clustered_by = 1
+        with connection.schema_editor() as schema_editor:
+            schema_editor.table_sql(MetaOptions)
+
+    with pytest.raises(
+        ValueError, match="number_of_shards has to be an integer bigger than 0"
+    ):
+        MetaOptions._meta.clustered_by = OMITTED
+        MetaOptions._meta.number_of_shards = 0
+        with connection.schema_editor() as schema_editor:
+            schema_editor.table_sql(MetaOptions)
+
+    with pytest.raises(
+        ValueError,
+        match="number_of_shards has to be an integer bigger than 0, " "not 'abcdef'",
+    ):
+        MetaOptions._meta.clustered_by = OMITTED
+        MetaOptions._meta.number_of_shards = "abcdef"
+        with connection.schema_editor() as schema_editor:
+            schema_editor.table_sql(MetaOptions)
