@@ -174,3 +174,41 @@ def test_model_meta_partition_by():
     ):
         with connection.schema_editor() as schema_editor:
             schema_editor.table_sql(MetaOptions)
+
+
+def test_model_id():
+    """
+    Tests the auto-generated id added by Django.
+
+    """
+
+    class SomeModel(CrateModel):
+        class Meta:
+            app_label = "ignore"
+
+    assert SomeModel._meta.get_field("id")
+    assert len(SomeModel._meta.fields) == 1
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.column_sql(
+            SomeModel, SomeModel._meta.get_field("id")
+        )
+        assert (
+            sql
+            == "INTEGER GENERATED ALWAYS AS CAST((random() * 1.0E9) AS integer) NOT NULL PRIMARY KEY"
+        )
+
+    class SomeModel(CrateModel):
+        id = models.TextField(primary_key=True)
+
+        class Meta:
+            app_label = "ignore"
+
+    assert SomeModel._meta.get_field("id")
+    assert len(SomeModel._meta.fields) == 1
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.column_sql(
+            SomeModel, SomeModel._meta.get_field("id")
+        )
+        assert sql == "text NOT NULL PRIMARY KEY"
