@@ -11,7 +11,7 @@ def check_field(model, field_name: str) -> None:
     try:
         model._meta.get_field(field_name)
     except Exception as e:
-        raise ValueError(f"Column {field_name!r} does not exist in " f"model") from e
+        raise ValueError(f"Column {field_name!r} does not exist in model") from e
 
 
 class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
@@ -119,9 +119,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             sql[0] += f" CLUSTERED BY ({clustered_by})"
 
         if clustered_by and number_of_shards:
-            sql[0] += (
-                f" CLUSTERED BY ({clustered_by}) INTO {number_of_shards} " f"shards"
-            )
+            sql[0] += f" CLUSTERED BY ({clustered_by}) INTO {number_of_shards} shards"
 
         if not clustered_by and number_of_shards:
             sql[0] += f" CLUSTERED INTO ({number_of_shards})"
