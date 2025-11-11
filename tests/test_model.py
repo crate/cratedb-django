@@ -1,5 +1,7 @@
 import pytest
 
+from cratedb_django.fields import ObjectField
+from cratedb_django.fields.array import ArrayField
 from cratedb_django.models import CrateModel
 from cratedb_django.models.model import CRATE_META_OPTIONS, OMITTED
 
@@ -174,6 +176,56 @@ def test_model_meta_partition_by():
     ):
         with connection.schema_editor() as schema_editor:
             schema_editor.table_sql(MetaOptions)
+
+
+def test_array_field_creation():
+    from cratedb_django.fields.array import ArrayField
+
+    class SomeModel(models.Model):
+        f1 = ArrayField(models.IntegerField())
+        f2 = ArrayField(ArrayField(models.CharField(max_length=120)))
+        f3 = ArrayField(ArrayField(ObjectField()))
+
+        class Meta:
+            app_label = "ignore"
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.column_sql(
+            SomeModel, SomeModel._meta.get_field("f1")
+        )
+        assert sql == "ARRAY(integer) NOT NULL"
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.column_sql(
+            SomeModel, SomeModel._meta.get_field("f2")
+        )
+        assert sql == "ARRAY(ARRAY(varchar(120))) NOT NULL"
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.column_sql(
+            SomeModel, SomeModel._meta.get_field("f3")
+        )
+        assert sql == "ARRAY(ARRAY(OBJECT)) NOT NULL"
+
+
+def test_array_deconstruct():
+    """
+    Verify deconstruct works as intended, it's primarily used to 'serialize'
+    the field and deserialize in other places like migrations.
+    """
+
+    class SomeModel(models.Model):
+        f = ArrayField(models.CharField())
+
+        class Meta:
+            app_label = "ignore"
+
+    name, path, args, kwargs = SomeModel._meta.get_field("f").deconstruct()
+
+    assert name == "f"
+    assert args == []
+    assert path == "cratedb_django.fields.array.ArrayField"
+    assert isinstance(kwargs["base_field"], models.CharField)
 
 
 def test_model_id():
