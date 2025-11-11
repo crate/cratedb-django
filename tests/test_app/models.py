@@ -3,6 +3,7 @@ import datetime, uuid
 from django.db import models
 
 from cratedb_django.fields import ObjectField
+from cratedb_django.fields.array import ArrayField
 from cratedb_django.models import CrateModel
 
 """
@@ -21,8 +22,6 @@ class AllFieldsModel(CrateModel):
     field_float = models.FloatField()
     field_char = models.CharField(max_length=100)
     field_bool = models.BooleanField()
-    # field_date = models.DateField()
-    # field_datetime = models.DateTimeField()
     field_json = ObjectField(default=dict)
     field_uuid = models.UUIDField()
 
@@ -43,6 +42,21 @@ class AllFieldsModel(CrateModel):
             field_json={"hello": "world"},
             field_uuid=uuid.uuid4(),
         )
+
+    class Meta:
+        app_label = "test_app"
+
+
+class ArraysModel(CrateModel):
+    field_int = ArrayField(base_field=models.IntegerField(), null=True)
+    field_int_not_null = ArrayField(models.IntegerField(), null=False, default=[])
+    field_int_default = ArrayField(models.IntegerField(), default=[123, 321])
+    field_float = ArrayField(models.FloatField())
+    field_char = ArrayField(models.CharField(max_length=100))
+    field_bool = ArrayField(models.BooleanField())
+    field_json = ArrayField(ObjectField())
+    field_uuid = ArrayField(models.UUIDField())
+    field_nested = ArrayField(ArrayField(models.CharField()))
 
     class Meta:
         app_label = "test_app"

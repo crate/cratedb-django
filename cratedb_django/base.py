@@ -84,6 +84,8 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         "TimeField": "time",
         "UUIDField": "text",
         "ObjectField": "OBJECT",
+        # ArrayField is defined in cratedb.fields.arrays.ArrayField.db_type
+        "ArrayField": "",
     }
 
     operators = {
