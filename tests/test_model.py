@@ -1,7 +1,5 @@
 import pytest
 
-from cratedb_django.fields import ObjectField
-from cratedb_django.fields.array import ArrayField
 from cratedb_django.models import CrateModel
 from cratedb_django.models.model import CRATE_META_OPTIONS, OMITTED
 
