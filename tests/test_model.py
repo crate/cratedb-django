@@ -199,6 +199,12 @@ def test_model_id():
             == "INTEGER GENERATED ALWAYS AS CAST((random() * 1.0E9) AS integer) NOT NULL PRIMARY KEY"
         )
 
+
+def test_model_custom_id():
+    """
+    Verify a custom id field defined by the user
+    """
+
     class SomeModel(CrateModel):
         id = models.TextField(primary_key=True)
 

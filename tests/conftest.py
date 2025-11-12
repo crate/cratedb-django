@@ -3,7 +3,7 @@ import logging
 import pytest
 import os, django
 from django.db import connection
-
+from django.apps import apps
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "tests.settings")
 django.setup()
@@ -33,6 +33,9 @@ def clean_database(request):
 
     yield
 
+    if "ignore" in apps.all_models:
+        apps.all_models.pop("ignore")
+
     models = [
         model
         for model in request.module.__dict__.values()
@@ -40,7 +43,6 @@ def clean_database(request):
     ]
 
     for model in models:
-
         if model._meta.app_label != "ignore" and not model._meta.abstract:
             with connection.cursor() as cursor:
                 cursor.execute(f"DELETE FROM {model._meta.db_table}")
