@@ -24,6 +24,11 @@ execute_from_command_line(["manage.py", "migrate"])
 
 logging.info("All migrations run successfully")
 
+# The app name to define transient Models in unittests,
+# transient models don't get created in database and get
+# pruned after every test.
+_CRATE_TEST_APP = "_crate_test"
+
 
 @pytest.fixture(scope="function", autouse=True)
 def clean_database(request):
@@ -33,8 +38,10 @@ def clean_database(request):
 
     yield
 
-    if "ignore" in apps.all_models:
-        apps.all_models.pop("ignore")
+    # This deletes the defined models after every tests,
+    # enabling us to re-use the same Model name in all tests.
+    if _CRATE_TEST_APP in apps.all_models:
+        apps.all_models.pop(_CRATE_TEST_APP)
 
     models = [
         model
@@ -43,7 +50,7 @@ def clean_database(request):
     ]
 
     for model in models:
-        if model._meta.app_label != "ignore" and not model._meta.abstract:
+        if model._meta.app_label != _CRATE_TEST_APP and not model._meta.abstract:
             with connection.cursor() as cursor:
                 cursor.execute(f"DELETE FROM {model._meta.db_table}")
                 cursor.execute(f"REFRESH TABLE {model._meta.db_table}")

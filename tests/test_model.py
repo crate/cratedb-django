@@ -1,7 +1,5 @@
 import pytest
 
-from cratedb_django.fields import ObjectField
-from cratedb_django.fields.array import ArrayField
 from cratedb_django.models import CrateModel
 from cratedb_django.models.model import CRATE_META_OPTIONS
 
@@ -122,11 +120,11 @@ def test_model_meta():
 
     class NoMetaOptions(CrateModel):
         class Meta:
-            app_label = "ignore"
+            app_label = "_crate_test"
 
     class RefreshMetaOptions(CrateModel):
         class Meta:
-            app_label = "ignore"
+            app_label = "_crate_test"
             auto_refresh = True
 
     # Check all defaults are set.
@@ -148,7 +146,7 @@ def test_model_meta_partition_by():
         three = models.TextField()
 
         class Meta:
-            app_label = "ignore"
+            app_label = "_crate_test"
             partition_by = ["one"]
 
     with connection.schema_editor() as schema_editor:
@@ -185,7 +183,7 @@ def test_model_id():
 
     class SomeModel(CrateModel):
         class Meta:
-            app_label = "ignore"
+            app_label = "_crate_test"
 
     assert SomeModel._meta.get_field("id")
     assert len(SomeModel._meta.fields) == 1
@@ -209,7 +207,7 @@ def test_model_custom_id():
         id = models.TextField(primary_key=True)
 
         class Meta:
-            app_label = "ignore"
+            app_label = "_crate_test"
 
     assert SomeModel._meta.get_field("id")
     assert len(SomeModel._meta.fields) == 1
