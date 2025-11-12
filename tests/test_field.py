@@ -19,7 +19,7 @@ def test_field_with_uuid_default():
         f = models.TextField(db_default=functions.UUID())
 
         class Meta:
-            app_label = "ignore"
+            app_label = "_crate_test"
 
     with connection.schema_editor() as schema_editor:
         sql, params = schema_editor.column_sql(
@@ -35,7 +35,7 @@ def test_field_array_creation():
         f3 = ArrayField(ArrayField(ObjectField()))
 
         class Meta:
-            app_label = "ignore"
+            app_label = "_crate_test"
 
     with connection.schema_editor() as schema_editor:
         sql, params = schema_editor.column_sql(
@@ -66,7 +66,7 @@ def test_field_array_deconstruct():
         f = ArrayField(models.CharField())
 
         class Meta:
-            app_label = "ignore"
+            app_label = "_crate_test"
 
     name, path, args, kwargs = SomeModel._meta.get_field("f").deconstruct()
 
