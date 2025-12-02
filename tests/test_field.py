@@ -3,10 +3,9 @@ import uuid
 from django.db import connection, models
 from django.forms.models import model_to_dict
 
-from cratedb_django.fields import ObjectField
-from cratedb_django.fields.array import ArrayField
-from cratedb_django.models import functions
+from cratedb_django import fields
 
+from cratedb_django.models import functions
 from tests.test_app.models import ArraysModel
 
 
@@ -16,7 +15,7 @@ def test_field_with_uuid_default():
     """
 
     class TestModel(models.Model):
-        f = models.TextField(db_default=functions.UUID())
+        f = fields.TextField(db_default=functions.UUID())
 
         class Meta:
             app_label = "_crate_test"
@@ -30,9 +29,9 @@ def test_field_with_uuid_default():
 
 def test_field_array_creation():
     class SomeModel(models.Model):
-        f1 = ArrayField(models.IntegerField())
-        f2 = ArrayField(ArrayField(models.CharField(max_length=120)))
-        f3 = ArrayField(ArrayField(ObjectField()))
+        f1 = fields.ArrayField(fields.IntegerField())
+        f2 = fields.ArrayField(fields.ArrayField(fields.CharField(max_length=120)))
+        f3 = fields.ArrayField(fields.ArrayField(fields.ObjectField()))
 
         class Meta:
             app_label = "_crate_test"
@@ -63,7 +62,7 @@ def test_field_array_deconstruct():
     """
 
     class SomeModel(models.Model):
-        f = ArrayField(models.CharField())
+        f = fields.ArrayField(fields.CharField())
 
         class Meta:
             app_label = "_crate_test"
@@ -73,7 +72,7 @@ def test_field_array_deconstruct():
     assert name == "f"
     assert args == []
     assert path == "cratedb_django.fields.array.ArrayField"
-    assert isinstance(kwargs["base_field"], models.CharField)
+    assert isinstance(kwargs["base_field"], fields.CharField)
 
 
 def test_field_array_insert():
