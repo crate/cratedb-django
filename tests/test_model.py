@@ -2,6 +2,7 @@ import pytest
 
 from cratedb_django.models import CrateModel
 from cratedb_django.models.model import CRATE_META_OPTIONS, OMITTED
+from cratedb_django import fields
 
 from django.forms.models import model_to_dict
 from django.db import connection, models
@@ -141,9 +142,9 @@ def test_model_meta_partition_by():
     """Test partition_by option in Meta class."""
 
     class MetaOptions(CrateModel):
-        one = models.TextField()
-        two = models.TextField()
-        three = models.TextField()
+        one = fields.TextField()
+        two = fields.TextField()
+        three = fields.TextField()
 
         class Meta:
             app_label = "_crate_test"
@@ -180,9 +181,9 @@ def test_array_field_creation():
     from cratedb_django.fields.array import ArrayField
 
     class SomeModel(models.Model):
-        f1 = ArrayField(models.IntegerField())
-        f2 = ArrayField(ArrayField(models.CharField(max_length=120)))
-        f3 = ArrayField(ArrayField(ObjectField()))
+        f1 = fields.ArrayField(fields.IntegerField())
+        f2 = fields.ArrayField(fields.ArrayField(fields.CharField(max_length=120)))
+        f3 = fields.ArrayField(fields.ArrayField(fields.ObjectField()))
 
         class Meta:
             app_label = "ignore"
@@ -213,7 +214,7 @@ def test_array_deconstruct():
     """
 
     class SomeModel(models.Model):
-        f = ArrayField(models.CharField())
+        f = fields.ArrayField(fields.CharField())
 
         class Meta:
             app_label = "ignore"
@@ -254,7 +255,7 @@ def test_model_custom_id():
     """
 
     class SomeModel(CrateModel):
-        id = models.TextField(primary_key=True)
+        id = fields.TextField(primary_key=True)
 
         class Meta:
             app_label = "_crate_test"
@@ -275,10 +276,10 @@ def test_clustered_by():
     """
 
     class MetaOptions(CrateModel):
-        id = models.IntegerField()
-        one = models.TextField()
-        two = models.TextField()
-        three = models.TextField()
+        id = fields.IntegerField()
+        one = fields.TextField()
+        two = fields.TextField()
+        three = fields.TextField()
 
         class Meta:
             app_label = "ignore"

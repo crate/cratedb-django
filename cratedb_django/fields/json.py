@@ -1,4 +1,4 @@
-from django.db.models import JSONField
+from cratedb_django.fields import JSONField
 
 
 class ObjectField(JSONField):

@@ -1,9 +1,14 @@
-from django.db.models import Field, CharField
+from django.db.models import Field
+from cratedb_django.fields import CrateDBBaseField
 
 
-class ArrayField(Field):
+class ArrayField(CrateDBBaseField):
+    """
+    An array-like field.
+    """
+
     def __init__(self, base_field: Field, **kwargs):
-        # The internal type, called like this to
+        # The internal type of the array, named like this to
         # be compatible with postgres driver.
         self.base_field = base_field
 

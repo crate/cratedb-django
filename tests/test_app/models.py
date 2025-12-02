@@ -1,9 +1,7 @@
 import datetime, uuid
 
-from django.db import models
 
-from cratedb_django.fields import ObjectField
-from cratedb_django.fields.array import ArrayField
+from cratedb_django import fields
 from cratedb_django.models import CrateModel
 
 """
@@ -13,17 +11,17 @@ detected by django.
 
 
 class AllFieldsModel(CrateModel):
-    field_int = models.IntegerField(unique=False)
-    field_int_unique = models.IntegerField(unique=True)
-    field_int_not_indexed = models.IntegerField(db_index=False)
-    field_int_not_null = models.IntegerField(null=False)
-    field_int_null = models.IntegerField(null=True)
-    field_int_default = models.IntegerField(default=54321)
-    field_float = models.FloatField()
-    field_char = models.CharField(max_length=100)
-    field_bool = models.BooleanField()
-    field_json = ObjectField(default=dict)
-    field_uuid = models.UUIDField()
+    field_int = fields.IntegerField(unique=False)
+    field_int_unique = fields.IntegerField(unique=True)
+    field_int_not_indexed = fields.IntegerField(db_index=False)
+    field_int_not_null = fields.IntegerField(null=False)
+    field_int_null = fields.IntegerField(null=True)
+    field_int_default = fields.IntegerField(default=54321)
+    field_float = fields.FloatField()
+    field_char = fields.CharField(max_length=100)
+    field_bool = fields.BooleanField()
+    field_json = fields.ObjectField(default=dict)
+    field_uuid = fields.UUIDField()
 
     @classmethod
     def create_dummy(cls):
@@ -48,29 +46,31 @@ class AllFieldsModel(CrateModel):
 
 
 class ArraysModel(CrateModel):
-    field_int = ArrayField(base_field=models.IntegerField(), null=True)
-    field_int_not_null = ArrayField(models.IntegerField(), null=False, default=[])
-    field_int_default = ArrayField(models.IntegerField(), default=[123, 321])
-    field_float = ArrayField(models.FloatField())
-    field_char = ArrayField(models.CharField(max_length=100))
-    field_bool = ArrayField(models.BooleanField())
-    field_json = ArrayField(ObjectField())
-    field_uuid = ArrayField(models.UUIDField())
-    field_nested = ArrayField(ArrayField(models.CharField()))
+    field_int = fields.ArrayField(base_field=fields.IntegerField(), null=True)
+    field_int_not_null = fields.ArrayField(
+        fields.IntegerField(), null=False, default=[]
+    )
+    field_int_default = fields.ArrayField(fields.IntegerField(), default=[123, 321])
+    field_float = fields.ArrayField(fields.FloatField())
+    field_char = fields.ArrayField(fields.CharField(max_length=100))
+    field_bool = fields.ArrayField(fields.BooleanField())
+    field_json = fields.ArrayField(fields.ObjectField())
+    field_uuid = fields.ArrayField(fields.UUIDField())
+    field_nested = fields.ArrayField(fields.ArrayField(fields.CharField()))
 
     class Meta:
         app_label = "test_app"
 
 
 class SimpleModel(CrateModel):
-    field = models.TextField()
+    field = fields.TextField()
 
     class Meta:
         app_label = "test_app"
 
 
 class RefreshModel(CrateModel):
-    field = models.TextField()
+    field = fields.TextField()
 
     class Meta:
         app_label = "test_app"
