@@ -19,11 +19,7 @@ class CrateDBBaseField(Field):
             return f"{base_type} INDEX OFF"
         return base_type
 
-
     def deconstruct(self):
-        """
-        Make `index_db` show up in migrations so it round-trips correctly.
-        """
         name, path, args, kwargs = super().deconstruct()
         kwargs["db_index"] = self.db_index
         return name, path, args, kwargs
