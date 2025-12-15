@@ -339,3 +339,34 @@ def test_clustered_by():
         MetaOptions._meta.number_of_shards = "abcdef"
         with connection.schema_editor() as schema_editor:
             schema_editor.table_sql(MetaOptions)
+
+
+def test_index_off():
+    """Verify the index=Off on the fields settings, defaults to True."""
+
+    class SomeModel(CrateModel):
+        f1 = fields.TextField()
+        f2 = fields.CharField(db_index=True)
+        f3 = fields.IntegerField(db_index=False)
+
+        class Meta:
+            app_label = "_crate_test"
+
+    # Default case
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.column_sql(
+            SomeModel, SomeModel._meta.get_field("f1")
+        )
+        assert sql == "text NOT NULL"
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.column_sql(
+            SomeModel, SomeModel._meta.get_field("f2")
+        )
+        assert sql == "varchar NOT NULL"
+
+    with connection.schema_editor() as schema_editor:
+        sql, params = schema_editor.column_sql(
+            SomeModel, SomeModel._meta.get_field("f3")
+        )
+        assert sql == "integer INDEX OFF NOT NULL"
