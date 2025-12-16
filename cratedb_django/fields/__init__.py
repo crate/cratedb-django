@@ -1,4 +1,7 @@
+import logging
+
 from django.db.models import fields, JSONField
+from django.db.models.fields.generated import GeneratedField
 
 from .base import CrateDBBaseField
 from .json import ObjectField
@@ -53,8 +56,19 @@ class FloatField(CrateDBBaseField, fields.FloatField):
     pass
 
 
-class GeneratedField(CrateDBBaseField, fields.FloatField):
-    pass
+class GeneratedField(CrateDBBaseField, GeneratedField):
+    def __init__(self, *args, **kwargs):
+        virtual = kwargs.get("db_persist")
+        if virtual:
+            logging.warning(
+                f"{self} has virtual=True, but CrateDB does not support virtual generated columns."
+                f"`db_persist` will be ignored."
+            )
+
+        # Always set it as True because the default is None.
+        kwargs["db_persist"] = True
+
+        super().__init__(*args, **kwargs)
 
 
 class GenericIPAddressField(CrateDBBaseField, fields.GenericIPAddressField):

@@ -97,7 +97,7 @@ class SqlExtractor:
             return sql, params
 
 
-def get_sql_of(model: CrateModel) -> "SqlExtractor":
+def get_sql_of(model: type[CrateModel]) -> "SqlExtractor":
     """
     Create an SQL extractor for the given model.
 

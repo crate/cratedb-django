@@ -1,12 +1,15 @@
 import uuid
 
 from django.db import connection, models
+from django.db.models import F
 from django.forms.models import model_to_dict
 
-from cratedb_django import fields
-
+from cratedb_django.models import CrateModel
 from cratedb_django.models import functions
+from cratedb_django import fields
+from cratedb_django.models.functions import UUID
 from tests.test_app.models import ArraysModel
+from tests.utils import get_sql_of
 
 
 def test_field_with_uuid_default():
@@ -28,7 +31,7 @@ def test_field_with_uuid_default():
 
 
 def test_field_array_creation():
-    class SomeModel(models.Model):
+    class SomeModel(CrateModel):
         f1 = fields.ArrayField(fields.IntegerField())
         f2 = fields.ArrayField(fields.ArrayField(fields.CharField(max_length=120)))
         f3 = fields.ArrayField(fields.ArrayField(fields.ObjectField()))
@@ -61,7 +64,7 @@ def test_field_array_deconstruct():
     the field and deserialize in other places like migrations.
     """
 
-    class SomeModel(models.Model):
+    class SomeModel(CrateModel):
         f = fields.ArrayField(fields.CharField())
 
         class Meta:
@@ -107,7 +110,7 @@ def test_field_array_insert():
     d.pop("id")
     d.pop("field_int_default")
 
-    # Convert expected defaults `field_uuid` from UUID to str,
+    # Convert expected defaults `field_uuid` from UUID to `str`,
     # which is what django returns.
     expected_defaults["field_uuid"] = list(map(lambda x: str(x), d["field_uuid"]))
     assert d == expected_defaults
@@ -131,3 +134,40 @@ def test_array_deconstruct():
     assert args == []
     assert path == "cratedb_django.fields.array.ArrayField"
     assert isinstance(kwargs["base_field"], models.CharField)
+
+
+def test_generated_field():
+    """
+    Verify that a generated field works in CrateDB.
+    """
+
+    class SomeModel(CrateModel):
+        f1 = fields.IntegerField()
+        f2 = fields.IntegerField()
+        f = fields.GeneratedField(
+            expression=F("f1") / F("f2"), output_field=models.IntegerField()
+        )
+        ff = fields.GeneratedField(
+            expression=F("f1") + 1, output_field=models.IntegerField(), db_persist=True
+        )
+        f_func = fields.GeneratedField(
+            expression=UUID(), output_field=models.CharField()
+        )
+
+        class Meta:
+            app_label = "_crate_test"
+
+    sql, params = get_sql_of(SomeModel).field("f")
+    assert sql.strip() == 'integer GENERATED ALWAYS AS (("f1" / "f2"))'
+    assert not params
+
+    # db_persist should be ignored.
+    sql, params = get_sql_of(SomeModel).field("ff")
+    assert sql.strip() == 'integer GENERATED ALWAYS AS (("f1" + %s))'
+    assert params == [
+        1,
+    ]
+
+    sql, params = get_sql_of(SomeModel).field("f_func")
+    assert sql.strip() == "varchar GENERATED ALWAYS AS (gen_random_text_uuid())"
+    assert not params

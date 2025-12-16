@@ -79,6 +79,12 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             return
         return super().alter_field(model, old_field, new_field, strict)
 
+    def _column_generated_sql(self, field):
+        """Returns the SQL to use in a GENERATED ALWAYS clause."""
+        sql, params = super()._column_generated_sql(field)
+        sql = sql.replace("VIRTUAL", "").replace("STORED", "")
+        return sql, params
+
     def table_sql(self, model) -> tuple:
         sql = list(super().table_sql(model))
 
