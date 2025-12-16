@@ -26,7 +26,7 @@ logging.info("All migrations run successfully")
 
 # The app name to define transient Models in unittests,
 # transient models don't get created in database and get
-# pruned after every test.
+# pruned from the app registry after every test.
 _CRATE_TEST_APP = "_crate_test"
 
 

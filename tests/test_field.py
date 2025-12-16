@@ -111,3 +111,23 @@ def test_field_array_insert():
     # which is what django returns.
     expected_defaults["field_uuid"] = list(map(lambda x: str(x), d["field_uuid"]))
     assert d == expected_defaults
+
+
+def test_array_deconstruct():
+    """
+    Verify deconstruct works as intended, it's primarily used to 'serialize'
+    the field and deserialize in other places like migrations.
+    """
+
+    class SomeModel(CrateModel):
+        f = fields.ArrayField(fields.CharField())
+
+        class Meta:
+            app_label = "_crate_test"
+
+    name, path, args, kwargs = SomeModel._meta.get_field("f").deconstruct()
+
+    assert name == "f"
+    assert args == []
+    assert path == "cratedb_django.fields.array.ArrayField"
+    assert isinstance(kwargs["base_field"], models.CharField)

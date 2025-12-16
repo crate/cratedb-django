@@ -207,26 +207,6 @@ def test_array_field_creation():
         assert sql == "ARRAY(ARRAY(OBJECT)) NOT NULL"
 
 
-def test_array_deconstruct():
-    """
-    Verify deconstruct works as intended, it's primarily used to 'serialize'
-    the field and deserialize in other places like migrations.
-    """
-
-    class SomeModel(models.Model):
-        f = fields.ArrayField(fields.CharField())
-
-        class Meta:
-            app_label = "ignore"
-
-    name, path, args, kwargs = SomeModel._meta.get_field("f").deconstruct()
-
-    assert name == "f"
-    assert args == []
-    assert path == "cratedb_django.fields.array.ArrayField"
-    assert isinstance(kwargs["base_field"], models.CharField)
-
-
 def test_model_id():
     """
     Tests the auto-generated id added by Django.
