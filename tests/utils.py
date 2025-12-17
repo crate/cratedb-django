@@ -1,5 +1,7 @@
 import dataclasses
 
+from django.db.models.fields import AutoFieldMixin
+from django.db.models.sql import InsertQuery
 from django.test.utils import CaptureQueriesContext
 from django.db import connection
 
@@ -55,7 +57,40 @@ class captured_queries(CaptureQueriesContext):
         return CapturedQuery(self.captured_queries[index])
 
 
-class SqlExtractor:
+def compile_insert_sql(model, objs, using="default") -> tuple[str, tuple]:
+    """
+    Given a model and objects of that model returns the INSERT statement that would be
+    generated.
+
+    GeneratedField are ignored as they'd be filtered out by django, the values
+    are computed in the database.
+
+    Note: This function does not create any connection to the database.
+    """
+    query = InsertQuery(model)
+
+    # filter out fields that are automatically generated e.g. GeneratedFields and AutoFields.
+    # as these would have been filtered out by django in normal inserts operations.
+    fields = [
+        f
+        for f in model._meta.local_concrete_fields
+        if not getattr(f, "generated", False) and not isinstance(f, AutoFieldMixin)
+    ]
+
+    query.insert_values(fields, objs)
+    query.returning_fields = []
+    compiler = query.get_compiler(using, connection)
+
+    compiled = compiler.as_sql()
+
+    if isinstance(compiled, (tuple, list)):
+        # `as_sql` can sometimes return a list of statements or the statement itself,
+        # we only care about the first statement.
+        return compiled[0]
+    return compiled
+
+
+class SqlCompiler:
     def __init__(self, model):
         self.model = model
 
@@ -96,8 +131,21 @@ class SqlExtractor:
             sql, params = schema_editor.table_sql(self.model)
             return sql, params
 
+    def insert(self, objs: list[CrateModel]) -> tuple[str, tuple]:
+        """
+        Generate the full INSERT DDL for the model.
 
-def get_sql_of(model: type[CrateModel]) -> "SqlExtractor":
+        Returns
+        -------
+        tuple[str, tuple]
+            A pair containing:
+            - The SQL statement for inserting to the table.
+            - The parameters passed to the insert statements.
+        """
+        return compile_insert_sql(self.model, objs)
+
+
+def get_sql_of(model: type[CrateModel]) -> "SqlCompiler":
     """
     Create an SQL extractor for the given model.
 
@@ -118,13 +166,13 @@ def get_sql_of(model: type[CrateModel]) -> "SqlExtractor":
 
     Returns
     -------
-    SqlExtractor
-        An instance exposing `field(name)` and `table()` for retrieving
-        Django-generated DDL SQL and parameters.
+    SqlCompiler
+        An instance exposing `field(name)`, `table()`, `insert()` for retrieving
+        Django-generated SQL and parameters.
     """
     if not isinstance(model, type) and isinstance(model, CrateModel):
         raise ValueError(
             "You passed an instance of a model, a class is expected instead. Fix: "
             'try removing "()", e.g. get_sql_of(MyModel()) -> get_sql_of(MyModel)'
         )
-    return SqlExtractor(model)
+    return SqlCompiler(model)

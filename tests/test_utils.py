@@ -35,3 +35,11 @@ def test_get_sql_of():
     assert isinstance(sql, str)
     assert isinstance(params, list)
     assert "text" in sql
+
+    expected_val1, expected_val2 = "expected_val1", "expected_val2"
+    sql, params = get_sql_of(SomeModel).insert(
+        [SomeModel(f=expected_val1), SomeModel(f=expected_val2)]
+    )
+    assert sql == 'INSERT INTO "_crate_test_somemodel" ("f") VALUES (%s), (%s)'
+    assert params[0] == expected_val1
+    assert params[1] == expected_val2
