@@ -61,7 +61,7 @@ class GeneratedField(CrateDBBaseField, GeneratedField):
         virtual = kwargs.get("db_persist")
         if virtual:
             logging.warning(
-                f"{self} has virtual=True, but CrateDB does not support virtual generated columns."
+                f"{self} has db_persist=True, but CrateDB does not support virtual generated columns."
                 f"`db_persist` will be ignored."
             )
 
