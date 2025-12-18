@@ -53,22 +53,20 @@ def test_insert_model_field():
 
 
 def test_update_model():
-    with captured_queries(connection) as ctx:
-        obj = SimpleModel.objects.create(field="text")
-        pk = obj.pk
-        assert obj.field == "text"
+    obj = SimpleModel.objects.create(field="text")
+    SimpleModel.refresh()
+    pk = obj.pk
+    assert obj.field == "text"
 
-        obj.field = "sometext"
-        obj.save()
+    expected_value = "sometext"
+    obj.field = expected_value
+    obj.save()
 
-        assert obj.field == "sometext"
-        assert pk == obj.pk  # Pk did not change
+    assert obj.field == expected_value
+    assert pk == obj.pk  # Pk did not change
 
-        # TODO: If we do not refresh here it breaks, there should only be 1 record at this time
-        # but there are 2, see issue: https://github.com/surister/cratedb-django/issues/7
-        SimpleModel.refresh()
-        # assert SimpleModel.objects.count() == 1
-        # pprint.pp(ctx.captured_queries)
+    SimpleModel.refresh()
+    assert SimpleModel.objects.count() == 1
 
 
 def test_delete_from_model():
@@ -225,7 +223,7 @@ def test_model_id():
         )
         assert (
             sql
-            == "INTEGER GENERATED ALWAYS AS CAST((random() * 1.0E9) AS integer) NOT NULL PRIMARY KEY"
+            == "INTEGER DEFAULT CAST((random() * 1.0E9) AS integer) NOT NULL PRIMARY KEY"
         )
 
 

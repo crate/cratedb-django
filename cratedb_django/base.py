@@ -53,7 +53,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     ops_class = DatabaseOperations
     SchemaEditorClass = DatabaseSchemaEditor
 
-    CRATE_SQL_SERIAL = "INTEGER GENERATED ALWAYS AS CAST((random() * 1.0E9) AS integer)"
+    CRATE_SQL_SERIAL = "INTEGER DEFAULT CAST((random() * 1.0E9) AS integer)"
     data_types = {
         # todo pgdiff - doc
         "AutoField": CRATE_SQL_SERIAL,
