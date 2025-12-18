@@ -221,10 +221,7 @@ def test_model_id():
         sql, params = schema_editor.column_sql(
             SomeModel, SomeModel._meta.get_field("id")
         )
-        assert (
-            sql
-            == "INTEGER DEFAULT CAST((random() * 1.0E9) AS integer) NOT NULL PRIMARY KEY"
-        )
+        assert sql == "bigint default (random() * 2^63-1)::bigint NOT NULL PRIMARY KEY"
 
 
 def test_model_custom_id():

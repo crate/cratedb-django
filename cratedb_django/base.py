@@ -53,12 +53,14 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     ops_class = DatabaseOperations
     SchemaEditorClass = DatabaseSchemaEditor
 
-    CRATE_SQL_SERIAL = "INTEGER DEFAULT CAST((random() * 1.0E9) AS integer)"
+    CRATE_SQL_AUTO_BIGINT = "bigint default (random() * 2^63-1)::bigint"
+    CRATE_SQL_AUTO_INTEGER = "integer default (random() * 2^31-1)::integer"
+    CRATE_SQL_AUTO_SMALLINTEGER = "smallint default (random() * 32767)::smallint"
     data_types = {
         # todo pgdiff - doc
-        "AutoField": CRATE_SQL_SERIAL,
-        "BigAutoField": CRATE_SQL_SERIAL,
-        "SmallAutoField": CRATE_SQL_SERIAL,
+        "AutoField": CRATE_SQL_AUTO_INTEGER,
+        "BigAutoField": CRATE_SQL_AUTO_BIGINT,
+        "SmallAutoField": CRATE_SQL_AUTO_SMALLINTEGER,
         "BinaryField": "bytea",
         "BooleanField": "boolean",
         "CharField": _get_varchar_column,
