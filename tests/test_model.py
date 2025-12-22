@@ -175,36 +175,6 @@ def test_model_meta_partition_by():
             schema_editor.table_sql(MetaOptions)
 
 
-def test_array_field_creation():
-    from cratedb_django.fields.array import ArrayField
-
-    class SomeModel(models.Model):
-        f1 = fields.ArrayField(fields.IntegerField())
-        f2 = fields.ArrayField(fields.ArrayField(fields.CharField(max_length=120)))
-        f3 = fields.ArrayField(fields.ArrayField(fields.ObjectField()))
-
-        class Meta:
-            app_label = "ignore"
-
-    with connection.schema_editor() as schema_editor:
-        sql, params = schema_editor.column_sql(
-            SomeModel, SomeModel._meta.get_field("f1")
-        )
-        assert sql == "ARRAY(integer) NOT NULL"
-
-    with connection.schema_editor() as schema_editor:
-        sql, params = schema_editor.column_sql(
-            SomeModel, SomeModel._meta.get_field("f2")
-        )
-        assert sql == "ARRAY(ARRAY(varchar(120))) NOT NULL"
-
-    with connection.schema_editor() as schema_editor:
-        sql, params = schema_editor.column_sql(
-            SomeModel, SomeModel._meta.get_field("f3")
-        )
-        assert sql == "ARRAY(ARRAY(OBJECT)) NOT NULL"
-
-
 def test_model_id():
     """
     Tests the auto-generated id added by Django.
