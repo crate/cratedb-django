@@ -181,3 +181,16 @@ def test_insert_generated_field():
     assert obj.f == 0
     assert obj.ff == 2
     assert obj.f_func
+
+
+def test_uuid_field():
+    """Verify that UUIDField sets the expected character size"""
+
+    class SomeModel(CrateModel):
+        f = fields.UUIDField()
+
+        class Meta:
+            app_label = "_crate_test"
+
+    sql, params = get_sql_of(SomeModel).field("f")
+    assert sql == "varchar(36) NOT NULL"

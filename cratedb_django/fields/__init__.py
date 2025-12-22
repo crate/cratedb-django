@@ -120,6 +120,19 @@ class JSONField(CrateDBBaseField, JSONField):
 
 
 class UUIDField(CrateDBBaseField, fields.UUIDField):
+    """
+    Represents a UUID field, the database will not generate a value the field just validates
+    the expected length of an UUID, to automatically add a value upon object creation use
+    the `default` parameter.
+
+    Examples
+    --------
+    >>> UUIDField(default=uuid.uuid4)
+
+    To use a CrateDB generated uuid use a `CharField` with `db_default=functions.UUID`, see
+    TODO [doc]
+    """
+
     pass
 
 
