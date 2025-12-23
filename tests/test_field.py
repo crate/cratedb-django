@@ -214,3 +214,16 @@ def test_object_field_creation():
         sql
         == "OBJECT(strict) as (name varchar,obj OBJECT(strict) as (age integer)) NOT NULL"
     )
+
+
+def test_uuid_field():
+    """Verify that UUIDField sets the expected character size"""
+
+    class SomeModel(CrateModel):
+        f = fields.UUIDField()
+
+        class Meta:
+            app_label = "_crate_test"
+
+    sql, params = get_sql_of(SomeModel).field("f")
+    assert sql == "varchar(36) NOT NULL"

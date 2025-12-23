@@ -84,7 +84,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         "SmallIntegerField": "smallint",
         "TextField": "text",
         "TimeField": "time",
-        "UUIDField": "text",
+        "UUIDField": "varchar(36)",
         "ObjectField": "OBJECT",
         # ArrayField is defined in cratedb.fields.arrays.ArrayField.db_type
         "ArrayField": "",
