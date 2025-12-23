@@ -6,6 +6,7 @@ from django.db.models.fields.generated import GeneratedField
 from .base import CrateDBBaseField
 from .json import ObjectField
 from .array import ArrayField
+from .uuid import AutoUUIDField
 
 
 class AutoField(CrateDBBaseField, fields.AutoField):
@@ -165,4 +166,5 @@ __all__ = [
     "URLField",
     "JSONField",
     "UUIDField",
+    "AutoUUIDField",
 ]

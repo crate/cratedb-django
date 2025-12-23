@@ -2,12 +2,6 @@ from django.db.models.expressions import Func
 
 from cratedb_django.fields import TextField
 
-"""
-class SomeModel(CrateModel):
-    id = models.TextField(primary_key=True, db_default=UUID())
-    some = models.TextField()
-"""
-
 
 class UUID(Func):
     """https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#gen-random-text-uuid"""

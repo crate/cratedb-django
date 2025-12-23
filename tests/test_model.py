@@ -38,7 +38,7 @@ def test_model_auto_pk_value_exists():
     assert obj.id
     assert obj.pk
     assert obj.id == obj.pk
-    assert isinstance(obj.id, int)
+    assert isinstance(obj.id, str)
 
 
 def test_insert_model_field():
@@ -89,7 +89,7 @@ def test_insert_all_fields():
     for with all supported field types"""
 
     expected = {
-        "id": 29147646,
+        "id": "FGFgS5sBCuFygwVIzRxt",
         "field_int": 1,
         "field_int_unique": 2,
         "field_int_not_indexed": 3,
@@ -191,7 +191,7 @@ def test_model_id():
         sql, params = schema_editor.column_sql(
             SomeModel, SomeModel._meta.get_field("id")
         )
-        assert sql == "bigint default (random() * 2^63-1)::bigint NOT NULL PRIMARY KEY"
+        assert sql == "char(20) DEFAULT (gen_random_text_uuid()) NOT NULL PRIMARY KEY"
 
 
 def test_model_custom_id():
