@@ -4,6 +4,7 @@ from django.db import connection, models
 from django.db.models import F
 from django.forms.models import model_to_dict
 
+from cratedb_django.fields import CharField
 from cratedb_django.models import CrateModel
 from cratedb_django.models import functions
 from cratedb_django import fields
@@ -57,7 +58,7 @@ def test_field_array_creation():
         sql, params = schema_editor.column_sql(
             SomeModel, SomeModel._meta.get_field("f3")
         )
-        assert sql == "ARRAY(ARRAY(OBJECT)) NOT NULL"
+        assert sql == "ARRAY(ARRAY(OBJECT(dynamic))) NOT NULL"
 
 
 def test_field_array_deconstruct():
@@ -181,6 +182,38 @@ def test_insert_generated_field():
     assert obj.f == 0
     assert obj.ff == 2
     assert obj.f_func
+
+
+def test_object_field_creation():
+    """Verifies that ObjectField applies correctly the column policy"""
+
+    class SomeModel(CrateModel):
+        f = fields.ObjectField()
+        f1 = fields.ObjectField(policy="ignored")
+        f2 = fields.ObjectField(
+            policy="strict",
+            schema={
+                "name": CharField(max_length=None),
+                "obj": fields.ObjectField(
+                    policy="strict", schema={"age": fields.IntegerField()}
+                ),
+            },
+        )
+
+        class Meta:
+            app_label = "_crate_test"
+
+    sql, params = get_sql_of(SomeModel).field("f")
+    assert sql == "OBJECT(dynamic) NOT NULL"
+
+    sql, params = get_sql_of(SomeModel).field("f1")
+    assert sql == "OBJECT(ignored) NOT NULL"
+
+    sql, params = get_sql_of(SomeModel).field("f2")
+    assert (
+        sql
+        == "OBJECT(strict) as (name varchar,obj OBJECT(strict) as (age integer)) NOT NULL"
+    )
 
 
 def test_uuid_field():
