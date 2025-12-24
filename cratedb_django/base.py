@@ -2,6 +2,7 @@ import logging
 import re
 from collections.abc import Mapping
 from itertools import tee
+from typing import Optional
 
 from crate.client.converter import DefaultTypeConverter
 from crate.client.cursor import Cursor
@@ -121,14 +122,33 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             self.connection.autocommit = False  # Forcibly set autocommit to False.
 
     def get_connection_params(self):
-        conn_params = dict(servers=self.settings_dict.get("SERVERS"))
+        VALID_OPTIONS = {"verify_ssl_cert"}
+
+        options: Optional[dict[str, str]] = self.settings_dict.get("OPTIONS", None)
+        if options:
+            for key in options:
+                if key not in VALID_OPTIONS:
+                    raise ImproperlyConfigured(f"Unexpected OPTIONS parameter {key}")
+
+        if self.settings_dict.get("PORT"):
+            raise ImproperlyConfigured(
+                "Unexpected 'PORT' setting, specify the port in the URIs in SERVER or"
+                "in HOST, e.g. http://localhost:4200"
+            )
+
+        conn_params = dict(
+            **options,
+            servers=self.settings_dict.get("SERVERS", []),
+            username=self.settings_dict.get("USER") or None,
+            password=self.settings_dict.get("PASSWORD") or None,
+        )
 
         if self.settings_dict["HOST"]:
             conn_params["servers"] = [self.settings_dict["HOST"]]
 
-        if self.settings_dict.get("PORT") or self.settings_dict.get("HOST"):
+        if not conn_params["servers"]:
             raise ImproperlyConfigured(
-                "Do not use 'PORT' nor 'HOST' in settings.databases, user 'SERVERS'"
+                "Missing SERVERS parameter either define a HOST or SERVERS"
             )
         return conn_params
 
