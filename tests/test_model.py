@@ -5,7 +5,7 @@ from cratedb_django.models.model import CRATE_META_OPTIONS, OMITTED
 from cratedb_django import fields
 
 from django.forms.models import model_to_dict
-from django.db import connection, models
+from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
 from tests.utils import captured_queries

@@ -1,6 +1,6 @@
 from django.db.models.sql.compiler import (
-    SQLCompiler,
-)  # noqa -- Import needed for re-imports.
+    SQLCompiler, # noqa: F401 Import needed for re-imports.
+)  
 
 from django.db.models.sql.compiler import (
     SQLInsertCompiler,

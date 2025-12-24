@@ -1,7 +1,8 @@
 import logging
 
 import pytest
-import os, django
+import os
+import django
 from django.db import connection
 from django.apps import apps
 

@@ -102,7 +102,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             for field in partition_by:
                 check_field(model, field)
 
-            sql[0] += f" PARTITIONED BY ({", ".join(partition_by)})"
+            sql[0] += f" PARTITIONED BY ({', '.join(partition_by)})"
 
         clustered_by = getattr(model._meta, "clustered_by", OMITTED)
         if clustered_by is not OMITTED:
