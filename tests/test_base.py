@@ -45,12 +45,16 @@ def test_get_connection_params():
     opts = dict(base_opts)
     opts["SERVERS"] = []
     opts["HOST"] = ""
-    with pytest.raises(ImproperlyConfigured, match=r"Missing SERVERS parameter"):
+    with pytest.raises(
+        ImproperlyConfigured, match=r"Missing SERVERS parameter"
+    ):
         DatabaseWrapper(opts).get_connection_params()
 
     opts = dict(base_opts)
     opts["PORT"] = "4200"
-    with pytest.raises(ImproperlyConfigured, match=r"Unexpected 'PORT' setting"):
+    with pytest.raises(
+        ImproperlyConfigured, match=r"Unexpected 'PORT' setting"
+    ):
         DatabaseWrapper(opts).get_connection_params()
 
     opts = dict(base_opts)
@@ -63,7 +67,7 @@ def test_get_connection_params():
     opts = dict(base_opts)
     opts["OPTIONS"] = {"verify_ssl_cert": False}
     c = DatabaseWrapper(opts).get_connection_params()
-    assert c["verify_ssl_cert"] == False
+    assert not c["verify_ssl_cert"]
 
     opts = dict(base_opts)
     opts["USER"] = ""

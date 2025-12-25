@@ -128,11 +128,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     def get_connection_params(self):
         VALID_OPTIONS = {"verify_ssl_cert"}
 
-        options: Optional[dict[str, str]] = self.settings_dict.get("OPTIONS", None)
+        options: Optional[dict[str, str]] = self.settings_dict.get(
+            "OPTIONS", None
+        )
         if options:
             for key in options:
                 if key not in VALID_OPTIONS:
-                    raise ImproperlyConfigured(f"Unexpected OPTIONS parameter {key}")
+                    raise ImproperlyConfigured(
+                        f"Unexpected OPTIONS parameter {key}"
+                    )
 
         if self.settings_dict.get("PORT"):
             raise ImproperlyConfigured(
