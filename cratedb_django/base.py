@@ -55,7 +55,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     CRATE_SQL_AUTO_BIGINT = "bigint default (random() * 2^63-1)::bigint"
     CRATE_SQL_AUTO_INTEGER = "integer default (random() * 2^31-1)::integer"
-    CRATE_SQL_AUTO_SMALLINTEGER = "smallint default (random() * 32767)::smallint"
+    CRATE_SQL_AUTO_SMALLINTEGER = (
+        "smallint default (random() * 32767)::smallint"
+    )
     data_types = {
         # todo pgdiff - doc
         "AutoField": CRATE_SQL_AUTO_INTEGER,
@@ -118,7 +120,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def _set_autocommit(self, autocommit):
         with self.wrap_database_errors:
-            self.connection.autocommit = False  # Forcibly set autocommit to False.
+            self.connection.autocommit = (
+                False  # Forcibly set autocommit to False.
+            )
 
     def get_connection_params(self):
         conn_params = dict(servers=self.settings_dict.get("SERVERS"))

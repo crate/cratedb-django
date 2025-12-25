@@ -74,7 +74,8 @@ def compile_insert_sql(model, objs, using="default") -> tuple[str, tuple]:
     fields = [
         f
         for f in model._meta.local_concrete_fields
-        if not getattr(f, "generated", False) and not isinstance(f, AutoFieldMixin)
+        if not getattr(f, "generated", False)
+        and not isinstance(f, AutoFieldMixin)
     ]
 
     query.insert_values(fields, objs)

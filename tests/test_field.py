@@ -36,7 +36,9 @@ def test_field_with_uuid_default():
 def test_field_array_creation():
     class SomeModel(CrateModel):
         f1 = fields.ArrayField(fields.IntegerField())
-        f2 = fields.ArrayField(fields.ArrayField(fields.CharField(max_length=120)))
+        f2 = fields.ArrayField(
+            fields.ArrayField(fields.CharField(max_length=120))
+        )
         f3 = fields.ArrayField(fields.ArrayField(fields.ObjectField()))
 
         class Meta:
@@ -115,7 +117,9 @@ def test_field_array_insert():
 
     # Convert expected defaults `field_uuid` from UUID to `str`,
     # which is what django returns.
-    expected_defaults["field_uuid"] = list(map(lambda x: str(x), d["field_uuid"]))
+    expected_defaults["field_uuid"] = list(
+        map(lambda x: str(x), d["field_uuid"])
+    )
     assert d == expected_defaults
 
 
@@ -151,7 +155,9 @@ def test_generated_field():
             expression=F("f1") / F("f2"), output_field=models.IntegerField()
         )
         ff = fields.GeneratedField(
-            expression=F("f1") + 1, output_field=models.IntegerField(), db_persist=False
+            expression=F("f1") + 1,
+            output_field=models.IntegerField(),
+            db_persist=False,
         )
         f_func = fields.GeneratedField(
             expression=UUID(), output_field=models.CharField(max_length=120)
@@ -172,7 +178,10 @@ def test_generated_field():
     ]
 
     sql, params = get_sql_of(SomeModel).field("f_func")
-    assert sql.strip() == "varchar(120) GENERATED ALWAYS AS (gen_random_text_uuid())"
+    assert (
+        sql.strip()
+        == "varchar(120) GENERATED ALWAYS AS (gen_random_text_uuid())"
+    )
     assert not params
 
 

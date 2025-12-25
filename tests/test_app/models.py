@@ -53,7 +53,9 @@ class ArraysModel(CrateModel):
     field_int_not_null = fields.ArrayField(
         fields.IntegerField(), null=False, default=[]
     )
-    field_int_default = fields.ArrayField(fields.IntegerField(), default=[123, 321])
+    field_int_default = fields.ArrayField(
+        fields.IntegerField(), default=[123, 321]
+    )
     field_float = fields.ArrayField(fields.FloatField())
     field_char = fields.ArrayField(fields.CharField(max_length=100))
     field_bool = fields.ArrayField(fields.BooleanField())
@@ -87,7 +89,9 @@ class GeneratedModel(CrateModel):
         expression=F("f1") / F("f2"), output_field=fields.IntegerField()
     )
     ff = fields.GeneratedField(
-        expression=F("f1") + 1, output_field=fields.IntegerField(), db_persist=False
+        expression=F("f1") + 1,
+        output_field=fields.IntegerField(),
+        db_persist=False,
     )
     f_func = fields.GeneratedField(
         expression=UUID(), output_field=fields.CharField(max_length=120)

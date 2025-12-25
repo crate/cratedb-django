@@ -51,7 +51,10 @@ def clean_database(request):
     ]
 
     for model in models:
-        if model._meta.app_label != _CRATE_TEST_APP and not model._meta.abstract:
+        if (
+            model._meta.app_label != _CRATE_TEST_APP
+            and not model._meta.abstract
+        ):
             with connection.cursor() as cursor:
                 cursor.execute(f"DELETE FROM {model._meta.db_table}")
                 cursor.execute(f"REFRESH TABLE {model._meta.db_table}")
