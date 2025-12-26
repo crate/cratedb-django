@@ -28,7 +28,7 @@ uv run pytest
 ## Lint
 
 ```bash
-uv run black . --check 
+uv run ruff check .
 ```
 
 ## Build

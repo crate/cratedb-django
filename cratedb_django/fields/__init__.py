@@ -88,7 +88,9 @@ class PositiveIntegerField(CrateDBBaseField, fields.PositiveIntegerField):
     pass
 
 
-class PositiveSmallIntegerField(CrateDBBaseField, fields.PositiveSmallIntegerField):
+class PositiveSmallIntegerField(
+    CrateDBBaseField, fields.PositiveSmallIntegerField
+):
     pass
 
 

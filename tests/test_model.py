@@ -5,7 +5,7 @@ from cratedb_django.models.model import CRATE_META_OPTIONS, OMITTED
 from cratedb_django import fields
 
 from django.forms.models import model_to_dict
-from django.db import connection, models
+from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
 from tests.utils import captured_queries
@@ -133,7 +133,10 @@ def test_model_meta():
 
     # Check the combination of user-defined + default.
     assert RefreshMetaOptions._meta.auto_refresh is True
-    assert RefreshMetaOptions._meta.partition_by is CRATE_META_OPTIONS["partition_by"]
+    assert (
+        RefreshMetaOptions._meta.partition_by
+        is CRATE_META_OPTIONS["partition_by"]
+    )
 
 
 def test_model_meta_partition_by():
@@ -158,7 +161,9 @@ def test_model_meta_partition_by():
         assert "PARTITIONED BY (one, two, three)" in sql
 
     MetaOptions._meta.partition_by = []
-    with pytest.raises(ValueError, match="partition_by has to be a non-empty sequence"):
+    with pytest.raises(
+        ValueError, match="partition_by has to be a non-empty sequence"
+    ):
         with connection.schema_editor() as schema_editor:
             schema_editor.table_sql(MetaOptions)
 
@@ -191,7 +196,10 @@ def test_model_id():
         sql, params = schema_editor.column_sql(
             SomeModel, SomeModel._meta.get_field("id")
         )
-        assert sql == "char(20) DEFAULT (gen_random_text_uuid()) NOT NULL PRIMARY KEY"
+        assert (
+            sql
+            == "char(20) DEFAULT (gen_random_text_uuid()) NOT NULL PRIMARY KEY"
+        )
 
 
 def test_model_custom_id():
@@ -255,7 +263,9 @@ def test_clustered_by():
         assert "INTO 3 shards" not in sql
         assert "CLUSTERED" not in sql
 
-    with pytest.raises(ValueError, match="Column 'nocolumn' does not exist in model"):
+    with pytest.raises(
+        ValueError, match="Column 'nocolumn' does not exist in model"
+    ):
         MetaOptions._meta.clustered_by = "nocolumn"
         MetaOptions._meta.number_of_shards = OMITTED
         with connection.schema_editor() as schema_editor:
@@ -278,7 +288,8 @@ def test_clustered_by():
 
     with pytest.raises(
         ValueError,
-        match="number_of_shards has to be an integer bigger than 0, " "not 'abcdef'",
+        match="number_of_shards has to be an integer bigger than 0, "
+        "not 'abcdef'",
     ):
         MetaOptions._meta.clustered_by = OMITTED
         MetaOptions._meta.number_of_shards = "abcdef"

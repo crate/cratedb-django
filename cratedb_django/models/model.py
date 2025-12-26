@@ -50,7 +50,9 @@ class CrateModel(models.Model, metaclass=MetaCrate):
     """
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)  # perform the actual save (insert or update)
+        super().save(
+            *args, **kwargs
+        )  # perform the actual save (insert or update)
         auto_refresh = getattr(self._meta, "auto_refresh", False)
         if auto_refresh and self.pk:  # If self.pk is available, it's an insert.
             table_name = self._meta.db_table

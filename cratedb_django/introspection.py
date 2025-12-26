@@ -1,5 +1,8 @@
 import crate.client.cursor
-from django.db.backends.base.introspection import BaseDatabaseIntrospection, TableInfo
+from django.db.backends.base.introspection import (
+    BaseDatabaseIntrospection,
+    TableInfo,
+)
 
 
 class DatabaseIntrospection(BaseDatabaseIntrospection):

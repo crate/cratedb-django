@@ -36,7 +36,7 @@ jobs:
         run: uv sync --dev
 
       - name: Lint
-        run: uv run black . --check
+        run: uv run ruff check .
 
       - name: Run tests
         run: uv run pytest

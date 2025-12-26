@@ -11,7 +11,9 @@ def check_field(model, field_name: str) -> None:
     try:
         model._meta.get_field(field_name)
     except Exception as e:
-        raise ValueError(f"Column {field_name!r} does not exist in model") from e
+        raise ValueError(
+            f"Column {field_name!r} does not exist in model"
+        ) from e
 
 
 class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
@@ -63,7 +65,10 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def column_sql(self, model, field, include_default=False):
         if field.unique:
             # todo pgdiff
-            if not os.getenv("SUPPRESS_UNIQUE_CONSTRAINT_WARNING", "false") == "true":
+            if (
+                not os.getenv("SUPPRESS_UNIQUE_CONSTRAINT_WARNING", "false")
+                == "true"
+            ):
                 logging.warning(
                     f"CrateDB does not support unique constraints but `{model}.{field}` is set as"
                     f" unique=True, it will be ignored."
@@ -102,7 +107,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             for field in partition_by:
                 check_field(model, field)
 
-            sql[0] += f" PARTITIONED BY ({", ".join(partition_by)})"
+            sql[0] += f" PARTITIONED BY ({', '.join(partition_by)})"
 
         clustered_by = getattr(model._meta, "clustered_by", OMITTED)
         if clustered_by is not OMITTED:
@@ -125,7 +130,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             sql[0] += f" CLUSTERED BY ({clustered_by})"
 
         if clustered_by and number_of_shards:
-            sql[0] += f" CLUSTERED BY ({clustered_by}) INTO {number_of_shards} shards"
+            sql[0] += (
+                f" CLUSTERED BY ({clustered_by}) INTO {number_of_shards} shards"
+            )
 
         if not clustered_by and number_of_shards:
             sql[0] += f" CLUSTERED INTO ({number_of_shards})"
