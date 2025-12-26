@@ -67,7 +67,7 @@ def test_get_connection_params():
     opts = dict(base_opts)
     opts["OPTIONS"] = {"verify_ssl_cert": False}
     c = DatabaseWrapper(opts).get_connection_params()
-    assert not c["verify_ssl_cert"]
+    assert c["verify_ssl_cert"] is False
 
     opts = dict(base_opts)
     opts["USER"] = ""
