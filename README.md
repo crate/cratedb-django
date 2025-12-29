@@ -43,10 +43,10 @@ base class.
 ```python
 from django.db import models
 from cratedb_django.models import CrateDBModel
-
+from cratedb_django.models import functions
 
 class Metrics(CrateDBModel):
-    id = models.TextField(primary_key=True, db_default=UUID())
+    id = models.TextField(primary_key=True, db_default=functions.UUID())
     value = models.IntegerField()
 ```
 
@@ -54,16 +54,6 @@ Django migrations can be run in CrateDB, default django migrations are tested.
 In spite of that, we recommend that you run anything transactional in a
 transactional database, like PostgresSQL and use CrateDB as your analytical database.
 
-## Details
-
-* `unique=True`. CrateDB only supports unique constraints on primary keys, any
-  model field with unique=true will emit a warning to stdout.
-
-### Environment variables
-
-| name                                 | value            | description                                                             |
-|--------------------------------------|------------------|-------------------------------------------------------------------------|
-| `SUPPRESS_UNIQUE_CONSTRAINT_WARNING` | [`true`/`false`] | Suppresses warning when a model is created with unique=True constraint. |
 
 # License
 

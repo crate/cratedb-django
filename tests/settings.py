@@ -2,7 +2,7 @@
 DATABASES = {
     "default": {
         "ENGINE": "cratedb_django",
-        "SERVERS": ["192.168.88.251:4200"],
+        "SERVERS": ["localhost:4200"],
     }
 }
 
