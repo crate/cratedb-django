@@ -1,16 +1,14 @@
 import uuid
 
 from django.db import connection, models
-from django.db.models import F
+from django.db.models.expressions import F, RawSQL
 from django.forms.models import model_to_dict
 
 from cratedb_django.fields import CharField
-from cratedb_django.models import CrateModel
-from cratedb_django.models import functions
+from cratedb_django.models import CrateModel, functions
 from cratedb_django import fields
 from cratedb_django.models.functions import UUID
-from tests.test_app.models import ArraysModel
-from tests.test_app.models import GeneratedModel
+from tests.test_app.models import ArraysModel, GeneratedModel
 
 from tests.utils import get_sql_of
 
@@ -236,3 +234,23 @@ def test_uuid_field():
 
     sql, params = get_sql_of(SomeModel).field("f")
     assert sql == "varchar(36) NOT NULL"
+
+
+def test_composite_primary_key():
+    class Metrics(CrateModel):
+        timestamp = fields.DateTimeField()
+        some_value = fields.IntegerField()
+        day_generated = fields.GeneratedField(
+            expression=RawSQL("date_trunc('day', %s)", [F("timestamp")]),
+            output_field=fields.DateTimeField(),
+            editable=False,
+        )
+        pk = fields.CompositePrimaryKey(
+            "timestamp", "some_value", "day_generated"
+        )
+
+        class Meta:
+            app_label = "_crate_test"
+
+    sql, params = get_sql_of(Metrics).table()
+    assert """PRIMARY KEY ("timestamp", "some_value", "day_generated")""" in sql

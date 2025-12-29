@@ -9,7 +9,11 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
 from tests.utils import captured_queries
-from tests.test_app.models import AllFieldsModel, SimpleModel, RefreshModel
+from tests.test_app.models import (
+    AllFieldsModel,
+    SimpleModel,
+    RefreshModel,
+)
 
 
 def test_model_refresh():
