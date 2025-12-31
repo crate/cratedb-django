@@ -16,6 +16,7 @@ class Abs(Func):
     https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#abs
     """
     function = "abs"
+
 class Upper(Func):
     """
     https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#upper
@@ -32,4 +33,5 @@ class Reverse(Func):
     """
     https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#reverse
     """
-    function = "reverse"    
+    function = "reverse"
+
