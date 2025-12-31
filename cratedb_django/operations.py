@@ -6,13 +6,13 @@ class DatabaseOperations(BaseDatabaseOperations):
     integer_field_ranges = {
         "SmallIntegerField": (-32768, 32767),
         "IntegerField": (-2147483648, 2147483647),
-        "BigIntegerField": (-9223372036854775808, 9223372036854775806),   # 807->806
-        "PositiveBigIntegerField": (0, 9223372036854775806),   # 807->806
+        "BigIntegerField": (-9223372036854775808, 9223372036854775806),   
+        "PositiveBigIntegerField": (0, 9223372036854775806),   
         "PositiveSmallIntegerField": (0, 32767),
-        "PositiveIntegerField": (-2147483648, +2147483647),  #in cratedb it ranges from -ve 2147...648 to +ve 2147...647  ,   but in django it ranges from 0 to 2147...647[i have changed this range acc to crateDB] 
+        "PositiveIntegerField": (0, +2147483647), 
         "SmallAutoField": (-32768, 32767),
         "AutoField": (-2147483648, 2147483647),
-        "BigAutoField": (-9223372036854775808, 9223372036854775806), # 807->806
+        "BigAutoField": (-9223372036854775808, 9223372036854775806), 
         "AutoUUIDField": (None, None),
     }
 
