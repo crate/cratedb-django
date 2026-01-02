@@ -5,6 +5,7 @@ from django.db.models.expressions import F, RawSQL
 from django.forms.models import model_to_dict
 
 from cratedb_django.fields import CharField
+
 from cratedb_django.models import CrateDBModel, functions
 from cratedb_django import fields
 from cratedb_django.models.functions import UUID
