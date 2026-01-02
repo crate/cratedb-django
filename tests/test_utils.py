@@ -1,7 +1,7 @@
 from django.db import connection
 
 from cratedb_django.fields import TextField
-from cratedb_django.models import CrateModel
+from cratedb_django.models import CrateDBModel
 from tests.utils import captured_queries
 from tests.utils import get_sql_of
 
@@ -18,7 +18,7 @@ def test_captured_queries():
 
 
 def test_get_sql_of():
-    class SomeModel(CrateModel):
+    class SomeModel(CrateDBModel):
         f = TextField()
 
         class Meta:

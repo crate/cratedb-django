@@ -5,7 +5,7 @@ from django.db.models.sql import InsertQuery
 from django.test.utils import CaptureQueriesContext
 from django.db import connection
 
-from cratedb_django.models import CrateModel
+from cratedb_django.models import CrateDBModel
 
 
 @dataclasses.dataclass
@@ -132,7 +132,7 @@ class SqlCompiler:
             sql, params = schema_editor.table_sql(self.model)
             return sql, params
 
-    def insert(self, objs: list[CrateModel]) -> tuple[str, tuple]:
+    def insert(self, objs: list[CrateDBModel]) -> tuple[str, tuple]:
         """
         Generate the full INSERT DDL for the model.
 
@@ -146,13 +146,13 @@ class SqlCompiler:
         return compile_insert_sql(self.model, objs)
 
 
-def get_sql_of(model: type[CrateModel]) -> "SqlCompiler":
+def get_sql_of(model: type[CrateDBModel]) -> "SqlCompiler":
     """
     Create an SQL extractor for the given model.
 
     Parameters
     ----------
-    model : CrateModel
+    model : CrateDBModel
         The model class whose generated DDL should be inspected.
 
     Examples
@@ -171,7 +171,7 @@ def get_sql_of(model: type[CrateModel]) -> "SqlCompiler":
         An instance exposing `field(name)`, `table()`, `insert()` for retrieving
         Django-generated SQL and parameters.
     """
-    if not isinstance(model, type) and isinstance(model, CrateModel):
+    if not isinstance(model, type) and isinstance(model, CrateDBModel):
         raise ValueError(
             "You passed an instance of a model, a class is expected instead. Fix: "
             'try removing "()", e.g. get_sql_of(MyModel()) -> get_sql_of(MyModel)'

@@ -6,7 +6,7 @@ from django.db.models.base import ModelBase
 _OMITTED = type("OMITTED", (), {"__bool__": lambda _: False})
 OMITTED = _OMITTED()
 
-# dict of all the extra options a CrateModel Meta class has.
+# dict of all the extra options a CrateDBModel Meta class has.
 # (name, default_value)
 CRATE_META_OPTIONS = {
     "auto_refresh": False,  # Automatically refresh a table on inserts.
@@ -41,7 +41,7 @@ class MetaCrate(ModelBase):
         return o
 
 
-class CrateModel(models.Model, metaclass=MetaCrate):
+class CrateDBModel(models.Model, metaclass=MetaCrate):
     """
     A base class for Django models with extra CrateDB specific functionality,
 

@@ -1,3 +1,3 @@
-from .model import CrateModel
+from .model import CrateDBModel
 
-__all__ = ["CrateModel"]
+__all__ = ["CrateDBModel"]

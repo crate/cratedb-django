@@ -1,6 +1,6 @@
 import logging
 
-from django.db.models import fields, JSONField
+from django.db.models import fields, JSONField, CompositePrimaryKey
 from django.db.models.fields.generated import GeneratedField
 
 from .base import CrateDBBaseField
@@ -139,6 +139,10 @@ class UUIDField(CrateDBBaseField, fields.UUIDField):
     pass
 
 
+class CompositePrimaryKey(CrateDBBaseField, CompositePrimaryKey):
+    pass
+
+
 __all__ = [
     "ObjectField",
     "ArrayField",
@@ -169,4 +173,5 @@ __all__ = [
     "JSONField",
     "UUIDField",
     "AutoUUIDField",
+    "CompositePrimaryKey",
 ]

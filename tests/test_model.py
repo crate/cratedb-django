@@ -1,6 +1,6 @@
 import pytest
 
-from cratedb_django.models import CrateModel
+from cratedb_django.models import CrateDBModel
 from cratedb_django.models.model import CRATE_META_OPTIONS, OMITTED
 from cratedb_django import fields
 
@@ -9,7 +9,11 @@ from django.db import connection
 from django.test.utils import CaptureQueriesContext
 
 from tests.utils import captured_queries
-from tests.test_app.models import AllFieldsModel, SimpleModel, RefreshModel
+from tests.test_app.models import (
+    AllFieldsModel,
+    SimpleModel,
+    RefreshModel,
+)
 
 
 def test_model_refresh():
@@ -117,11 +121,11 @@ def test_model_meta():
     Tests that default values are properly set even when not specified
     """
 
-    class NoMetaOptions(CrateModel):
+    class NoMetaOptions(CrateDBModel):
         class Meta:
             app_label = "_crate_test"
 
-    class RefreshMetaOptions(CrateModel):
+    class RefreshMetaOptions(CrateDBModel):
         class Meta:
             app_label = "_crate_test"
             auto_refresh = True
@@ -142,7 +146,7 @@ def test_model_meta():
 def test_model_meta_partition_by():
     """Test partition_by option in Meta class."""
 
-    class MetaOptions(CrateModel):
+    class MetaOptions(CrateDBModel):
         one = fields.TextField()
         two = fields.TextField()
         three = fields.TextField()
@@ -185,7 +189,7 @@ def test_model_id():
     Tests the auto-generated id added by Django.
     """
 
-    class SomeModel(CrateModel):
+    class SomeModel(CrateDBModel):
         class Meta:
             app_label = "_crate_test"
 
@@ -207,7 +211,7 @@ def test_model_custom_id():
     Verify a custom id field defined by the user
     """
 
-    class SomeModel(CrateModel):
+    class SomeModel(CrateDBModel):
         id = fields.TextField(primary_key=True)
 
         class Meta:
@@ -228,7 +232,7 @@ def test_clustered_by():
     `clustered_by` and `number_of_shards` meta class attributes.
     """
 
-    class MetaOptions(CrateModel):
+    class MetaOptions(CrateDBModel):
         id = fields.IntegerField()
         one = fields.TextField()
         two = fields.TextField()
@@ -300,7 +304,7 @@ def test_clustered_by():
 def test_index_off():
     """Verify the index=Off on the fields settings, defaults to True."""
 
-    class SomeModel(CrateModel):
+    class SomeModel(CrateDBModel):
         f1 = fields.TextField()
         f2 = fields.CharField(db_index=True)
         f3 = fields.IntegerField(db_index=False)

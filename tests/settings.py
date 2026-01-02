@@ -6,7 +6,6 @@ DATABASES = {
     }
 }
 
-
 # Below are all necessary settings to load typical django migrations,
 # which we use to test migrations
 

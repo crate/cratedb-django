@@ -4,7 +4,7 @@ import uuid
 from django.db.models import F
 
 from cratedb_django import fields
-from cratedb_django.models import CrateModel
+from cratedb_django.models import CrateDBModel
 from cratedb_django.models.functions import UUID
 
 """
@@ -13,7 +13,7 @@ detected by django.
 """
 
 
-class AllFieldsModel(CrateModel):
+class AllFieldsModel(CrateDBModel):
     field_int = fields.IntegerField(unique=False)
     field_int_unique = fields.IntegerField(unique=True)
     field_int_not_indexed = fields.IntegerField(db_index=False)
@@ -48,7 +48,7 @@ class AllFieldsModel(CrateModel):
         app_label = "test_app"
 
 
-class ArraysModel(CrateModel):
+class ArraysModel(CrateDBModel):
     field_int = fields.ArrayField(base_field=fields.IntegerField(), null=True)
     field_int_not_null = fields.ArrayField(
         fields.IntegerField(), null=False, default=[]
@@ -67,14 +67,14 @@ class ArraysModel(CrateModel):
         app_label = "test_app"
 
 
-class SimpleModel(CrateModel):
+class SimpleModel(CrateDBModel):
     field = fields.TextField()
 
     class Meta:
         app_label = "test_app"
 
 
-class RefreshModel(CrateModel):
+class RefreshModel(CrateDBModel):
     field = fields.TextField()
 
     class Meta:
@@ -82,7 +82,7 @@ class RefreshModel(CrateModel):
         auto_refresh = True
 
 
-class GeneratedModel(CrateModel):
+class GeneratedModel(CrateDBModel):
     f1 = fields.IntegerField()
     f2 = fields.IntegerField()
     f = fields.GeneratedField(
