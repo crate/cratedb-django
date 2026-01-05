@@ -1,3 +1,4 @@
+import datetime
 import uuid
 
 from django.db import connection, models
@@ -190,7 +191,7 @@ def test_insert_generated_field():
     assert obj.f == 0
     assert obj.ff == 2
     assert obj.f_func
-
+    assert obj.f_format == str(datetime.datetime.today().year)
 
 def test_object_field_creation():
     """Verifies that ObjectField applies correctly the column policy"""

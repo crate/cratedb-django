@@ -2,10 +2,11 @@ import datetime
 import uuid
 
 from django.db.models import F
+from django.db.models.expressions import Value
 
 from cratedb_django import fields
 from cratedb_django.models import CrateDBModel
-from cratedb_django.models.functions import UUID
+from cratedb_django.models.functions import UUID, Format, CURRENT_DATE
 
 """
 We need to register the models here so they get correctly configured and
@@ -95,6 +96,10 @@ class GeneratedModel(CrateDBModel):
     )
     f_func = fields.GeneratedField(
         expression=UUID(), output_field=fields.CharField(max_length=120)
+    )
+    f_format = fields.GeneratedField(
+        expression=Format(Value("%tY"), CURRENT_DATE()),
+        output_field=fields.CharField(max_length=100),
     )
 
     class Meta:

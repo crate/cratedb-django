@@ -76,3 +76,11 @@ class CURRENT_DATE(LiteralKeywordMixin, Func):
     function = "CURRENT_DATE"
     output_field = fields.CharField()
 
+
+class Format(Func):
+    """
+    https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#format-format-string-parameter-parameter
+    """
+    function = "format"
+    output_field = fields.CharField(max_length=100)
+    arity = 2
