@@ -4,15 +4,15 @@ from django.db.backends.base.operations import BaseDatabaseOperations
 class DatabaseOperations(BaseDatabaseOperations):
     compiler_module = "cratedb_django.compiler"
     integer_field_ranges = {
-        "SmallIntegerField": (-32768,32767),
-        "IntegerField": (-2147483648,2147483647),
-        "BigIntegerField": (-9223372036854775808,9223372036854775806),
-        "PositiveBigIntegerField": (0,9223372036854775806),
-        "PositiveSmallIntegerField": (0,32767),
-        "PositiveIntegerField": (0,2147483647),
-        "SmallAutoField": (-32768,32767),
-        "AutoField": (-2147483648,2147483647),
-        "BigAutoField": (-9223372036854775808,9223372036854775806),
+        "SmallIntegerField": (-32768, 32767),
+        "IntegerField": (-2147483648, 2147483647),
+        "BigIntegerField": (-9223372036854775808, 9223372036854775806),
+        "PositiveBigIntegerField": (0, 9223372036854775806),
+        "PositiveSmallIntegerField": (0, 32767),
+        "PositiveIntegerField": (0, 2147483647),
+        "SmallAutoField": (-32768, 32767),
+        "AutoField": (-2147483648, 2147483647),
+        "BigAutoField": (-9223372036854775808, 9223372036854775806),
         "AutoUUIDField": (None, None),
     }
 

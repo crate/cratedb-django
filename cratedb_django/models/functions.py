@@ -11,27 +11,44 @@ class UUID(Func):
         max_length=20
     )  # the length of a CrateDB random uid.
 
+
 class Abs(Func):
-    """
-    https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#abs
-    """
+    """https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#abs-number"""
+
     function = "abs"
 
+
 class Upper(Func):
-    """
-    https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#upper
-    """
+    """https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#upper-string"""
+
     function = "upper"
 
+
 class Lower(Func):
-    """
-    https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#lower
-    """
+    """https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#lower-string"""
+
     function = "lower"
 
+
 class Reverse(Func):
-    """
-    https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#reverse
-    """
+    """https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#reverse-text"""
+
     function = "reverse"
 
+
+class Concat(Func):
+    """https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#concat-first-arg-second-arg-parameter"""
+
+    function = "concat"
+
+
+class ConcatWs(Func):
+    """https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#concat-ws-separator-second-arg-parameter"""
+
+    function = "concat_ws"
+
+
+class Format(Func):
+    """https://cratedb.com/docs/crate/reference/en/latest/general/builtins/scalar-functions.html#format-format-string-parameter-parameter"""
+
+    function = "format"
