@@ -8,7 +8,7 @@ from cratedb_django.fields import CharField
 
 from cratedb_django.models import CrateDBModel, functions
 from cratedb_django import fields
-from cratedb_django.models.functions import UUID
+from cratedb_django.models.functions import UUID, CURRENT_DATE
 from tests.test_app.models import ArraysModel, GeneratedModel
 
 from tests.utils import get_sql_of
@@ -255,3 +255,21 @@ def test_composite_primary_key():
 
     sql, params = get_sql_of(Metrics).table()
     assert """PRIMARY KEY ("timestamp", "some_value", "day_generated")""" in sql
+
+
+def test_function_literal():
+    class SomeModel(CrateDBModel):
+        f_generated = fields.GeneratedField(
+            expression=CURRENT_DATE(), output_field=fields.CharField()
+        )
+
+        f_default = fields.CharField(db_default=CURRENT_DATE())
+
+        class Meta:
+            app_label = "_crate_test"
+
+    sql, params = get_sql_of(SomeModel).field("f_generated")
+    assert sql == "varchar GENERATED ALWAYS AS (CURRENT_DATE) "
+
+    sql, params = get_sql_of(SomeModel).field("f_default")
+    assert sql == "varchar DEFAULT (CURRENT_DATE()) NOT NULL"
