@@ -9,7 +9,7 @@
 Connector to use CrateDB as a database in Django ORM.
 
 # Documentation
-https://cratedb.com/docs/guide/integrate/django/index.html
+https://cratedb.com/docs/guide/integrate/django/
 
 
 ## How to install
