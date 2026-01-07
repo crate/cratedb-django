@@ -23,9 +23,10 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     # TODO pgdiff
     # TODO, is this bug? why isn't supports_deferrable_unique_constraints respected on table creation?
+    CRATE_SCHEMA_KEY = "schema-e1816fce-77c8-4db7-8e27-269d03923cd8"
+    sql_create_table = f'CREATE TABLE "{CRATE_SCHEMA_KEY}".%(table)s (%(definition)s)'
 
     sql_create_unique = "select 1"
-
     sql_alter_column_type = "SELECT 1"
     sql_alter_column_null = "SELECT 2"
     sql_alter_column_not_null = "SELECT 3"
@@ -90,9 +91,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         sql = sql.replace("VIRTUAL", "").replace("STORED", "")
         return sql, params
 
+    def get_schema(self):
+        """Returns the schema that's going to be used."""
+        return 'doc'
+
     def table_sql(self, model) -> tuple:
         sql = list(super().table_sql(model))
 
+        # At this point the SQL is pretty much 'valid', we add CrateDB specific
+        # from here onwards:
         partition_by = getattr(model._meta, "partition_by", OMITTED)
         if partition_by is not OMITTED:
             if not isinstance(partition_by, Sequence) or not partition_by:
@@ -137,4 +144,6 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         if not clustered_by and number_of_shards:
             sql[0] += f" CLUSTERED INTO ({number_of_shards})"
 
+        schema = self.get_schema()
+        sql[0] = sql[0].replace(self.CRATE_SCHEMA_KEY, schema)
         return tuple(sql)
