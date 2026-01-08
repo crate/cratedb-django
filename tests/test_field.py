@@ -273,3 +273,40 @@ def test_function_literal():
 
     sql, params = get_sql_of(SomeModel).field("f_default")
     assert sql == "varchar DEFAULT (CURRENT_DATE()) NOT NULL"
+
+
+def test_columnstore():
+    """Verify the parameter column_store on the Field's settings"""
+
+    class SomeModel(CrateDBModel):
+        f1 = fields.TextField()
+        f2 = fields.CharField(column_store=True)
+        f3 = fields.IntegerField(column_store=False)
+
+        class Meta:
+            app_label = "_crate_test"
+
+    sql, params = get_sql_of(SomeModel).field("f1")
+    assert sql == "text NOT NULL"
+
+    sql, params = get_sql_of(SomeModel).field("f2")
+    assert sql == "varchar NOT NULL"
+
+    sql, params = get_sql_of(SomeModel).field("f3")
+    assert sql == "integer STORAGE WITH(columnstore = false) NOT NULL"
+
+
+def test_columnstore_index():
+    """
+    Verify that if both index and column store are set as False the syntax
+    is still correct
+    """
+
+    class SomeModel(CrateDBModel):
+        f1 = fields.TextField(db_index=False, column_store=False)
+
+        class Meta:
+            app_label = "_crate_test"
+
+    sql, params = get_sql_of(SomeModel).field("f1")
+    assert sql == "text INDEX OFF STORAGE WITH(columnstore = false) NOT NULL"

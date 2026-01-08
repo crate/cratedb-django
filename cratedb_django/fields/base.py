@@ -8,15 +8,21 @@ class CrateDBBaseField(Field):
     """
 
     def __init__(self, *args, **kwargs):
+        self.column_store = kwargs.pop("column_store", True)
         super().__init__(*args, **kwargs)
-        # Defaults to True because by default CrateDB indexes everything.
-        # On `True` we do not modify the syntax.
-        self.db_index = kwargs.get("db_index", True)
+
+        self.db_index = kwargs.get("db_index", True)  # CrateDB indexes
+        # everything by default
 
     def db_type(self, connection):
         base_type = super().db_type(connection)
+
         if not self.db_index:
-            return f"{base_type} INDEX OFF"
+            base_type += " INDEX OFF"
+
+        # column store has to go AFTER index.
+        if not self.column_store:
+            base_type += " STORAGE WITH(columnstore = false)"
         return base_type
 
     def deconstruct(self):
