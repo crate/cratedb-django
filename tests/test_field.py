@@ -309,4 +309,4 @@ def test_columnstore_index():
             app_label = "_crate_test"
 
     sql, params = get_sql_of(SomeModel).field("f1")
-    assert sql == "text INDEX OFF STORAGE WITH(columnstore = false) NOT NULL"
+    assert sql == "text INDEX OFF STORAGE WITH (columnstore = false) NOT NULL"
