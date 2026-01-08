@@ -1,3 +1,5 @@
+from enum import Enum, auto
+
 from django.db import models, connection
 from django.db.models.base import ModelBase
 
@@ -6,28 +8,47 @@ from django.db.models.base import ModelBase
 _OMITTED = type("OMITTED", (), {"__bool__": lambda _: False})
 OMITTED = _OMITTED()
 
-# dict of all the extra options a CrateDBModel Meta class has.
-# (name, default_value)
-CRATE_META_OPTIONS = {
-    "auto_refresh": False,  # Automatically refresh a table on inserts.
-    "partition_by": OMITTED,
-    "clustered_by": OMITTED,
-    "number_of_shards": OMITTED,
-}
+
+class CrateMetaOptions(Enum):
+    """
+    Represents the specific options a CrateDB table can have.
+    """
+
+    auto_refresh = auto(), False, False
+    partition_by = auto(), OMITTED, False
+    clustered_by = auto(), OMITTED, False
+    number_of_shards = auto(), OMITTED, False
+
+    def __init__(self, _, current_value, used_in_parameters_table):
+        self.current_value = current_value
+        self.used_in_parameters_table = used_in_parameters_table
+
+    @staticmethod
+    def options():
+        return list(CrateMetaOptions.__members__)
+
+    @classmethod
+    def by_name(cls, name):
+        for m in cls:
+            if m.value[1] == name:
+                return m
+        raise KeyError(name)
 
 
 class MetaCrate(ModelBase):
     def __new__(cls, name, bases, attrs, **kwargs):
-        crate_attrs = {}
+        _temp_crate_attrs = {}
 
         # todo document
 
         try:
             meta = attrs["Meta"]
-            for key, default_value in CRATE_META_OPTIONS.items():
-                crate_attrs[key] = getattr(meta, key, default_value)
-                if hasattr(meta, key):
-                    delattr(meta, key)
+            for option in CrateMetaOptions:
+                _temp_crate_attrs[option.name] = getattr(
+                    meta, option.name, option.current_value
+                )
+                if hasattr(meta, option.name):
+                    delattr(meta, option.name)
         except KeyError:
             # Has no meta class
             pass
@@ -36,7 +57,7 @@ class MetaCrate(ModelBase):
 
         # Return back the crate_attrs we took from meta to the already
         # created object.
-        for k, v in crate_attrs.items():
+        for k, v in _temp_crate_attrs.items():
             setattr(o._meta, k, v)
         return o
 
