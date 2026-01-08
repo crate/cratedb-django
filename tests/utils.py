@@ -148,7 +148,10 @@ class SqlCompiler:
 
 def get_sql_of(model: type[CrateDBModel]) -> "SqlCompiler":
     """
-    Create an SQL extractor for the given model.
+    Creates a pseudo SQL 'compiler'. The compiler
+    has several methods that return the sql that Django would generate
+    for a given model.
+
 
     Parameters
     ----------
