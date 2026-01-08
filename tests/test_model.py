@@ -1,7 +1,7 @@
 import pytest
 
 from cratedb_django.models import CrateDBModel
-from cratedb_django.models.model import CRATE_META_OPTIONS, OMITTED
+from cratedb_django.models.model import CrateMetaOptions, OMITTED
 from cratedb_django import fields
 
 from django.forms.models import model_to_dict
@@ -57,6 +57,7 @@ def test_insert_model_field():
 
 
 def test_update_model():
+    assert SimpleModel.objects.count() == 0
     obj = SimpleModel.objects.create(field="text")
     SimpleModel.refresh()
     pk = obj.pk
@@ -131,15 +132,15 @@ def test_model_meta():
             auto_refresh = True
 
     # Check all defaults are set.
-    for key, default_value in CRATE_META_OPTIONS.items():
-        assert key in NoMetaOptions._meta.__dict__
-        assert getattr(NoMetaOptions._meta, key) is default_value
+    for option in CrateMetaOptions:
+        assert option.name in NoMetaOptions._meta.__dict__
+        assert getattr(NoMetaOptions._meta, option.name) is option.current_value
 
     # Check the combination of user-defined + default.
     assert RefreshMetaOptions._meta.auto_refresh is True
     assert (
         RefreshMetaOptions._meta.partition_by
-        is CRATE_META_OPTIONS["partition_by"]
+        is CrateMetaOptions.partition_by.current_value
     )
 
 
