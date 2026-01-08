@@ -22,7 +22,7 @@ class CrateDBBaseField(Field):
 
         # column store has to go AFTER index.
         if not self.column_store:
-            base_type += " STORAGE WITH(columnstore = false)"
+            base_type += " STORAGE WITH (columnstore = false)"
         return base_type
 
     def deconstruct(self):
