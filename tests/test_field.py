@@ -293,7 +293,7 @@ def test_columnstore():
     assert sql == "varchar NOT NULL"
 
     sql, params = get_sql_of(SomeModel).field("f3")
-    assert sql == "integer STORAGE WITH(columnstore = false) NOT NULL"
+    assert sql == "integer STORAGE WITH (columnstore = false) NOT NULL"
 
 
 def test_columnstore_index():
