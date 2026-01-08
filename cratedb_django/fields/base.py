@@ -11,8 +11,8 @@ class CrateDBBaseField(Field):
         self.column_store = kwargs.pop("column_store", True)
         super().__init__(*args, **kwargs)
 
-        self.db_index = kwargs.get("db_index", True)  # CrateDB indexes
-        # everything by default
+        # CrateDB indexes everything by default
+        self.db_index = kwargs.get("db_index", True)
 
     def db_type(self, connection):
         base_type = super().db_type(connection)
