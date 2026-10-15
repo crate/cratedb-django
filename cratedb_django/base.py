@@ -86,7 +86,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         "SlugField": "varchar(%(max_length)s)",
         "SmallIntegerField": "smallint",
         "TextField": "text",
-        "TimeField": "time",
+        "TimeField": "timestamp without time zone",
         "UUIDField": "varchar(36)",
         "ObjectField": "OBJECT",
         # ArrayField is defined in cratedb.fields.arrays.ArrayField.db_type
@@ -237,3 +237,4 @@ class CrateDBCursorWrapper(Cursor):
         else:
             # Convert from "pyformat" style to "named" style.
             return query % {name: f":{name}" for name in param_names}
+

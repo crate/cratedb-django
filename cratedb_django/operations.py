@@ -1,4 +1,10 @@
+import datetime
+
 from django.db.backends.base.operations import BaseDatabaseOperations
+
+
+TIME_ANCHOR_DATE = datetime.date(1970, 1, 1)
+_EPOCH = datetime.datetime(1970, 1, 1)
 
 
 class DatabaseOperations(BaseDatabaseOperations):
@@ -40,3 +46,45 @@ class DatabaseOperations(BaseDatabaseOperations):
 
         columns = ",".join(column.name for column in fields)
         return [f"returning {columns}", []]
+    
+    
+    def adapt_timefield_value(self, value):
+        if value is None:
+            return None
+
+        # Allow database expressions to be handled by Django.
+        if hasattr(value, "resolve_expression"):
+            return value
+        
+        if not isinstance(value, datetime.time):
+            return value
+
+        if value.utcoffset() is not None:
+            raise ValueError("Django does not support timezone-aware times.")
+
+        return datetime.datetime.combine(TIME_ANCHOR_DATE, value)
+
+    def get_db_converters(self, expression):
+        converters = super().get_db_converters(expression)
+
+        if expression.output_field.get_internal_type() == "TimeField":
+            converters.append(self.convert_timefield_value)
+
+        return converters
+
+    def convert_timefield_value(self, value, expression, connection):
+        if value is None:
+            return None
+
+        if isinstance(value, int):
+            value = _EPOCH + datetime.timedelta(milliseconds=value)
+
+        elif not isinstance(value, datetime.datetime):
+            raise TypeError(
+                f"Unexpected value for a TimeField column: {type(value).__name__}"
+            )
+
+        if value.tzinfo is not None:
+            value = value.astimezone(datetime.timezone.utc)
+
+        return value.time()
